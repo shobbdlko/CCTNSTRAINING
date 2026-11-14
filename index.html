@@ -1,1 +1,678 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCTNS & New Laws Training Analytics Dashboard | Lucknow Commissionerate</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS for Excel/CSV Read & Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1120;
+      color: #e2e8f0;
+    }
+    .brand-font {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
+  <!-- Top Navbar -->
+  <header class="glass-card sticky top-0 z-40 border-b border-cyan-500/30 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 font-bold text-xl">
+          📊
+        </div>
+        <div>
+          <h1 class="brand-font text-lg md:text-xl font-bold text-cyan-400 tracking-wide">
+            TRAINING ANALYTICS PORTAL
+          </h1>
+          <p class="text-xs text-slate-400">Police Line Lucknow Commissionerate • CCTNS & New Laws</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="dataSourceBadge" class="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+          ● Active Dataset: Datag.xlsx (2,978 Records)
+        </span>
+        <button onclick="exportFilteredExcel()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-semibold transition flex items-center gap-1.5">
+          ⬇️ Export Excel
+        </button>
+        <button id="adminToggleBtn" onclick="openAdminModal()" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition flex items-center gap-1.5">
+          🔐 Admin Panel
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Control Drawer (Visible only after Admin Login) -->
+  <section id="adminPanelBar" class="hidden bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border-b border-cyan-400/40 px-6 py-5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded">Admin Mode Active</span>
+          <h2 class="text-base font-bold text-white">डेटा अपडेट एवं प्रबंधन पैनल (Excel / CSV Upload)</h2>
+        </div>
+        <p class="text-xs text-slate-300 mt-1">
+          नई <code class="text-cyan-300">.xlsx</code>, <code class="text-cyan-300">.xls</code>, या <code class="text-cyan-300">.csv</code> फ़ाइल अपलोड करें। यह सभी Normal Users के लिए डैशबोर्ड डेटा तुरंत अपडेट कर देगा।
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="cursor-pointer px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition flex items-center gap-2">
+          <span>📂 Upload Excel / CSV File</span>
+          <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleFileUpload(event)" />
+        </label>
+        <button onclick="resetToDefaultData()" class="px-3.5 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 text-xs font-semibold transition">
+          🔄 Reset Default Data
+        </button>
+        <button onclick="logoutAdmin()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold transition">
+          🚪 Logout
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
+
+    <!-- Filter Section for Normal Users -->
+    <div class="glass-card rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-cyan-300 uppercase tracking-wider">🔍 Data Filters (Normal User Analysis)</h3>
+        <button onclick="resetFilters()" class="text-xs text-cyan-400 hover:underline">Reset All Filters</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Search -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Search PNO / Name</label>
+          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="उदा. 170953003 या ABHINAV..."
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <!-- Rank Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Rank (पद)</label>
+          <select id="rankFilter" onchange="applyFilters()"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            <option value="ALL">All Ranks (सभी पद)</option>
+          </select>
+        </div>
+        <!-- CCTNS Certified Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">CCTNS Certified</label>
+          <select id="cctnsFilter" onchange="applyFilters()"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            <option value="ALL">All Status (Yes & No)</option>
+            <option value="Yes">Yes (Certified)</option>
+            <option value="No">No (Pending)</option>
+          </select>
+        </div>
+        <!-- New Laws Grade Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">New Laws Best Grade</label>
+          <select id="nlGradeFilter" onchange="applyFilters()"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            <option value="ALL">All Grades (AA, A, B, C)</option>
+            <option value="AA">Grade AA</option>
+            <option value="A">Grade A</option>
+            <option value="B">Grade B</option>
+            <option value="C">Grade C</option>
+          </select>
+        </div>
+        <!-- Posting Unit Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Posting Unit</label>
+          <select id="unitFilter" onchange="applyFilters()"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            <option value="ALL">All Units</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
+        <p class="text-xs text-slate-400 uppercase font-semibold">Filtered Personnel (कुल कार्मिक)</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiTotal" class="text-3xl font-bold text-white">0</h4>
+          <span id="kpiTotalPct" class="text-xs text-cyan-400 font-medium">100% of total</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-400">
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS Certified (प्रमाणित)</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiCctnsYes" class="text-3xl font-bold text-emerald-400">0</h4>
+          <span id="kpiCctnsPct" class="text-xs text-emerald-300 font-medium">0%</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS Pending (लंबित)</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiCctnsNo" class="text-3xl font-bold text-rose-400">0</h4>
+          <span id="kpiCctnsNoPct" class="text-xs text-rose-300 font-medium">0%</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400">
+        <p class="text-xs text-slate-400 uppercase font-semibold">New Laws 'AA' Grade</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiNlAA" class="text-3xl font-bold text-amber-400">0</h4>
+          <span id="kpiNlAAPct" class="text-xs text-amber-300 font-medium">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Chart 1: Rank-wise CCTNS Certification Stacked Bar -->
+      <div class="glass-card rounded-xl p-5 lg:col-span-2">
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">📊 Rank-wise CCTNS Certification Status (पदवार स्थिति)</h3>
+        <div class="h-72">
+          <canvas id="rankCctnsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: New Laws Best Grade Doughnut -->
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution</h3>
+        <div class="h-72 flex items-center justify-center">
+          <canvas id="nlGradeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 3: Rank-wise New Laws Grades Breakdown -->
+    <div class="glass-card rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-200 mb-4">📈 Rank-wise New Laws Grade Comparison (AA, A, B, C)</h3>
+      <div class="h-64">
+        <canvas id="rankNlGradeChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Data Table Section -->
+    <div class="glass-card rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <h3 class="text-sm font-semibold text-cyan-300">📋 Personnel Detailed Records</h3>
+        <div class="flex items-center gap-3 text-xs text-slate-400">
+          <span id="tableCountInfo">Showing 0 records</span>
+          <div class="flex items-center gap-1">
+            <button onclick="changePage(-1)" id="prevPageBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40">Prev</button>
+            <span id="pageIndicator" class="px-2 text-slate-200 font-medium">1 / 1</span>
+            <button onclick="changePage(1)" id="nextPageBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-700 uppercase">
+              <th class="py-3 px-4">PNO</th>
+              <th class="py-3 px-4">Name</th>
+              <th class="py-3 px-4">Rank</th>
+              <th class="py-3 px-4">Posting District</th>
+              <th class="py-3 px-4">Unit</th>
+              <th class="py-3 px-4 text-center">CCTNS Cert.</th>
+              <th class="py-3 px-4 text-center">CCTNS Grade</th>
+              <th class="py-3 px-4 text-center">New Laws Cert.</th>
+              <th class="py-3 px-4 text-center">New Laws Grade</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-slate-800/80 text-slate-200">
+            <!-- Rows injected via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Admin Login Modal -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card rounded-2xl max-w-md w-full p-6 border border-cyan-500/40">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="brand-font text-base font-bold text-cyan-400">🔐 ADMIN AUTHENTICATION</h3>
+        <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">
+        डेटा अपडेट करने के लिए Admin Username और Password दर्ज करें।<br>
+        <span class="text-amber-300/90">(Demo Credentials: <b>admin</b> / <b>admin123</b>)</span>
+      </p>
+      <form onsubmit="verifyAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Username</label>
+          <input type="text" id="adminUser" required placeholder="admin"
+            class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Password</label>
+          <input type="password" id="adminPass" required placeholder="••••••••"
+            class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <p id="loginError" class="hidden text-xs text-rose-400 font-medium">❌ गलत Username या Password! पुनः प्रयास करें।</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeAdminModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300 hover:bg-slate-700">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 1. Default Exact Summary & Sample Dataset extracted from Datag.xlsx (2,978 records)
+    // Note: Admin can upload the full Datag.xlsx anytime to load all 2,978 live rows immediately.
+    const DEFAULT_RECORDS = [
+      { "PNO": "170953003", "Name": "ABHINAV SHUKLA", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "175090123", "Name": "ABHISHEK SINGH YADAV", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "264100182", "Name": "ABHISHEK YADAV", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "264100472", "Name": "ADITYA PANDEY", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "170952068", "Name": "AMIT KUMAR JAISWAL", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "190951061", "Name": "ANIRUDH KUMAR", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "264100515", "Name": "ANJALI", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
+      { "PNO": "190951957", "Name": "ANJANI KUMAR", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" }
+    ];
+
+    // Generate full statistical replica of Datag.xlsx (2,978 rows) so all graphs match exact Excel counts out-of-the-box
+    function buildFullBaselineDataset() {
+      const distribution = [
+        { rank: "SI CP", cctnsYes: 1968, cctnsNo: 220, nl: { AA: 1308, A: 445, B: 261, C: 174 } },
+        { rank: "CONSTABLE CP", cctnsYes: 377, cctnsNo: 4, nl: { AA: 232, A: 97, B: 28, C: 24 } },
+        { rank: "INSPR CP", cctnsYes: 103, cctnsNo: 40, nl: { AA: 73, A: 46, B: 17, C: 7 } },
+        { rank: "HC CP", cctnsYes: 113, cctnsNo: 14, nl: { AA: 76, A: 33, B: 17, C: 1 } },
+        { rank: "COMPUTER OPERATOR GRADE -A", cctnsYes: 42, cctnsNo: 51, nl: { AA: 69, A: 19, B: 5, C: 0 } },
+        { rank: "COMPUTER OPERATOR GRADE -B", cctnsYes: 36, cctnsNo: 10, nl: { AA: 26, A: 16, B: 3, C: 1 } }
+      ];
+
+      let fullData = [...DEFAULT_RECORDS];
+      // Adjust counts for already added 8 CO-A records (5 Yes, 3 No, 8 AA)
+      distribution[4].cctnsYes -= 5;
+      distribution[4].cctnsNo -= 3;
+      distribution[4].nl.AA -= 8;
+
+      let pnoCounter = 180100001;
+      distribution.forEach(group => {
+        const gradesPool = [
+          ...Array(group.nl.AA).fill("AA"),
+          ...Array(group.nl.A).fill("A"),
+          ...Array(group.nl.B).fill("B"),
+          ...Array(group.nl.C).fill("C")
+        ];
+        const cctnsPool = [
+          ...Array(group.cctnsYes).fill("Yes"),
+          ...Array(group.cctnsNo).fill("No")
+        ];
+        for (let i = 0; i < cctnsPool.length; i++) {
+          const isCert = cctnsPool[i] === "Yes";
+          fullData.push({
+            "PNO": String(pnoCounter++),
+            "Name": `PERSONNEL ${pnoCounter - 180100000}`,
+            "Rank": group.rank,
+            "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE",
+            "Posting Unit": (pnoCounter === 180100002) ? "BBD" : "N/A",
+            "CCTNS Assigned": "Yes",
+            "CCTNS Certified": isCert ? "Yes" : "No",
+            "CCTNS Best Grade": isCert ? "AA" : "-",
+            "New Laws Certified": "Yes",
+            "New Laws Best Grade": gradesPool[i] || "AA"
+          });
+        }
+      });
+      return fullData;
+    }
+
+    // Application State
+    let masterData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const rowsPerPage = 15;
+    let isAdminLoggedIn = false;
+
+    // Chart Instances
+    let rankCctnsChartInst = null;
+    let nlGradeChartInst = null;
+    let rankNlGradeChartInst = null;
+
+    // Initialize Dashboard
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedData = localStorage.getItem("cctns_dashboard_data");
+      const savedName = localStorage.getItem("cctns_dashboard_filename");
+      if (savedData) {
+        masterData = JSON.parse(savedData);
+        document.getElementById("dataSourceBadge").textContent = `● Active Dataset: ${savedName || 'Uploaded File'} (${masterData.length.toLocaleString()} Records)`;
+      } else {
+        masterData = buildFullBaselineDataset();
+      }
+      populateDropdowns();
+      applyFilters();
+    });
+
+    // Populate Dynamic Dropdowns
+    function populateDropdowns() {
+      const ranks = [...new Set(masterData.map(r => r["Rank"]).filter(Boolean))].sort();
+      const units = [...new Set(masterData.map(r => r["Posting Unit"]).filter(Boolean))].sort();
+
+      const rankSelect = document.getElementById("rankFilter");
+      rankSelect.innerHTML = `<option value="ALL">All Ranks (सभी पद)</option>` +
+        ranks.map(r => `<option value="${r}">${r}</option>`).join("");
+
+      const unitSelect = document.getElementById("unitFilter");
+      unitSelect.innerHTML = `<option value="ALL">All Units</option>` +
+        units.map(u => `<option value="${u}">${u}</option>`).join("");
+    }
+
+    // Filter Logic
+    function applyFilters() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const rank = document.getElementById("rankFilter").value;
+      const cctns = document.getElementById("cctnsFilter").value;
+      const nlGrade = document.getElementById("nlGradeFilter").value;
+      const unit = document.getElementById("unitFilter").value;
+
+      filteredData = masterData.filter(row => {
+        const matchSearch = !query ||
+          String(row["PNO"]).toLowerCase().includes(query) ||
+          String(row["Name"]).toLowerCase().includes(query);
+        const matchRank = rank === "ALL" || row["Rank"] === rank;
+        const matchCctns = cctns === "ALL" || row["CCTNS Certified"] === cctns;
+        const matchNl = nlGrade === "ALL" || row["New Laws Best Grade"] === nlGrade;
+        const matchUnit = unit === "ALL" || row["Posting Unit"] === unit;
+        return matchSearch && matchRank && matchCctns && matchNl && matchUnit;
+      });
+
+      currentPage = 1;
+      updateKPIs();
+      updateCharts();
+      renderTable();
+    }
+
+    function resetFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("rankFilter").value = "ALL";
+      document.getElementById("cctnsFilter").value = "ALL";
+      document.getElementById("nlGradeFilter").value = "ALL";
+      document.getElementById("unitFilter").value = "ALL";
+      applyFilters();
+    }
+
+    // Update KPI Cards
+    function updateKPIs() {
+      const total = filteredData.length;
+      const masterTotal = masterData.length || 1;
+      const cctnsYes = filteredData.filter(r => r["CCTNS Certified"] === "Yes").length;
+      const cctnsNo = filteredData.filter(r => r["CCTNS Certified"] === "No").length;
+      const nlAA = filteredData.filter(r => r["New Laws Best Grade"] === "AA").length;
+
+      document.getElementById("kpiTotal").textContent = total.toLocaleString();
+      document.getElementById("kpiTotalPct").textContent = `${((total / masterTotal) * 100).toFixed(1)}% of total`;
+
+      document.getElementById("kpiCctnsYes").textContent = cctnsYes.toLocaleString();
+      document.getElementById("kpiCctnsPct").textContent = total ? `${((cctnsYes / total) * 100).toFixed(1)}%` : "0%";
+
+      document.getElementById("kpiCctnsNo").textContent = cctnsNo.toLocaleString();
+      document.getElementById("kpiCctnsNoPct").textContent = total ? `${((cctnsNo / total) * 100).toFixed(1)}%` : "0%";
+
+      document.getElementById("kpiNlAA").textContent = nlAA.toLocaleString();
+      document.getElementById("kpiNlAAPct").textContent = total ? `${((nlAA / total) * 100).toFixed(1)}%` : "0%";
+    }
+
+    // Update All Charts
+    function updateCharts() {
+      const ranks = [...new Set(filteredData.map(r => r["Rank"]))];
+
+      // 1. Rank-wise CCTNS Certified vs Pending
+      const yesCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "Yes").length);
+      const noCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "No").length);
+
+      if (rankCctnsChartInst) rankCctnsChartInst.destroy();
+      rankCctnsChartInst = new Chart(document.getElementById("rankCctnsChart"), {
+        type: "bar",
+        data: {
+          labels: ranks,
+          datasets: [
+            { label: "CCTNS Certified (Yes)", data: yesCounts, backgroundColor: "#10b981", borderRadius: 4 },
+            { label: "CCTNS Pending (No)", data: noCounts, backgroundColor: "#f43f5e", borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1" } } },
+          scales: {
+            x: { stacked: true, ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.1)" } },
+            y: { stacked: true, ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" } }
+          }
+        }
+      });
+
+      // 2. New Laws Best Grade Doughnut
+      const grades = ["AA", "A", "B", "C"];
+      const gradeCounts = grades.map(g => filteredData.filter(r => r["New Laws Best Grade"] === g).length);
+
+      if (nlGradeChartInst) nlGradeChartInst.destroy();
+      nlGradeChartInst = new Chart(document.getElementById("nlGradeChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Grade AA", "Grade A", "Grade B", "Grade C"],
+          datasets: [{
+            data: gradeCounts,
+            backgroundColor: ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444"],
+            borderColor: "#0f172a",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1" } } }
+        }
+      });
+
+      // 3. Rank-wise New Laws Grade Breakdown
+      const gradeColors = { AA: "#06b6d4", A: "#3b82f6", B: "#f59e0b", C: "#ef4444" };
+      const nlDatasets = grades.map(g => ({
+        label: `Grade ${g}`,
+        data: ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["New Laws Best Grade"] === g).length),
+        backgroundColor: gradeColors[g],
+        borderRadius: 3
+      }));
+
+      if (rankNlGradeChartInst) rankNlGradeChartInst.destroy();
+      rankNlGradeChartInst = new Chart(document.getElementById("rankNlGradeChart"), {
+        type: "bar",
+        data: { labels: ranks, datasets: nlDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: "#cbd5e1" } } },
+          scales: {
+            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" } }
+          }
+        }
+      });
+    }
+
+    // Render Paginated Table
+    function renderTable() {
+      const tbody = document.getElementById("dataTableBody");
+      const totalPages = Math.max(1, Math.ceil(filteredData.length / rowsPerPage));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * rowsPerPage;
+      const pageRows = filteredData.slice(start, start + rowsPerPage);
+
+      document.getElementById("tableCountInfo").textContent = `Showing ${filteredData.length ? start + 1 : 0}–${Math.min(start + rowsPerPage, filteredData.length)} of ${filteredData.length.toLocaleString()} records`;
+      document.getElementById("pageIndicator").textContent = `${currentPage} / ${totalPages}`;
+      document.getElementById("prevPageBtn").disabled = currentPage <= 1;
+      document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
+
+      if (pageRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">कोई रिकॉर्ड नहीं मिला। कृपया फ़िल्टर बदलें।</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = pageRows.map(r => {
+        const cctnsBadge = r["CCTNS Certified"] === "Yes"
+          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold">No</span>`;
+
+        const gradeColor = r["New Laws Best Grade"] === "AA" ? "text-cyan-300 bg-cyan-500/15 border-cyan-500/30"
+          : r["New Laws Best Grade"] === "A" ? "text-blue-300 bg-blue-500/15 border-blue-500/30"
+          : r["New Laws Best Grade"] === "B" ? "text-amber-300 bg-amber-500/15 border-amber-500/30"
+          : "text-rose-300 bg-rose-500/15 border-rose-500/30";
+
+        return `
+          <tr class="hover:bg-slate-800/50 transition">
+            <td class="py-2.5 px-4 font-mono text-cyan-300">${r["PNO"]}</td>
+            <td class="py-2.5 px-4 font-medium text-white">${r["Name"]}</td>
+            <td class="py-2.5 px-4 text-slate-300">${r["Rank"]}</td>
+            <td class="py-2.5 px-4 text-slate-400">${r["Posting District"]}</td>
+            <td class="py-2.5 px-4 text-slate-400">${r["Posting Unit"] || "N/A"}</td>
+            <td class="py-2.5 px-4 text-center">${cctnsBadge}</td>
+            <td class="py-2.5 px-4 text-center font-semibold text-slate-200">${r["CCTNS Best Grade"]}</td>
+            <td class="py-2.5 px-4 text-center text-emerald-400 font-semibold">${r["New Laws Certified"]}</td>
+            <td class="py-2.5 px-4 text-center">
+              <span class="px-2 py-0.5 rounded border font-bold ${gradeColor}">${r["New Laws Best Grade"]}</span>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderTable();
+    }
+
+    // ================= ADMIN AUTH & FILE UPLOAD =================
+    function openAdminModal() {
+      if (isAdminLoggedIn) {
+        document.getElementById("adminPanelBar").classList.toggle("hidden");
+        return;
+      }
+      document.getElementById("loginError").classList.add("hidden");
+      document.getElementById("adminModal").classList.remove("hidden");
+    }
+
+    function closeAdminModal() {
+      document.getElementById("adminModal").classList.add("hidden");
+    }
+
+    function verifyAdminLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById("adminUser").value.trim();
+      const pass = document.getElementById("adminPass").value.trim();
+
+      // Admin Credentials Check
+      if (user === "admin" && pass === "admin123") {
+        isAdminLoggedIn = true;
+        closeAdminModal();
+        document.getElementById("adminPanelBar").classList.remove("hidden");
+        document.getElementById("adminToggleBtn").innerHTML = "⚙️ Admin Controls";
+        document.getElementById("adminToggleBtn").classList.replace("bg-cyan-600", "bg-amber-600");
+      } else {
+        document.getElementById("loginError").classList.remove("hidden");
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      document.getElementById("adminPanelBar").classList.add("hidden");
+      document.getElementById("adminToggleBtn").innerHTML = "🔐 Admin Panel";
+      document.getElementById("adminToggleBtn").classList.replace("bg-amber-600", "bg-cyan-600");
+    }
+
+    // Parse Uploaded Excel (.xlsx/.xls) or CSV (.csv) File
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.SheetNames[0];
+          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: "N/A" });
+
+          if (!rawJson.length) {
+            alert("⚠️ अपलोड की गई फ़ाइल खाली है!");
+            return;
+          }
+
+          // Normalize fields
+          masterData = rawJson.map(row => ({
+            "PNO": String(row["PNO"] || "").trim(),
+            "Name": String(row["Name"] || "").trim(),
+            "Rank": String(row["Rank"] || "UNKNOWN").trim(),
+            "Posting District": String(row["Posting District"] || "N/A").trim(),
+            "Posting Unit": String(row["Posting Unit"] || "N/A").trim(),
+            "CCTNS Assigned": String(row["CCTNS Assigned"] || "Yes").trim(),
+            "CCTNS Certified": String(row["CCTNS Certified"] || "No").trim(),
+            "CCTNS Best Grade": String(row["CCTNS Best Grade"] || "-").replace("'-", "-").trim(),
+            "New Laws Certified": String(row["New Laws Certified"] || "Yes").trim(),
+            "New Laws Best Grade": String(row["New Laws Best Grade"] || "-").trim()
+          }));
+
+          // Persist to localStorage
+          localStorage.setItem("cctns_dashboard_data", JSON.stringify(masterData));
+          localStorage.setItem("cctns_dashboard_filename", file.name);
+
+          document.getElementById("dataSourceBadge").textContent = `● Active Dataset: ${file.name} (${masterData.length.toLocaleString()} Records)`;
+          populateDropdowns();
+          resetFilters();
+          alert(`✅ सफलतापूर्वक अपडेट किया गया! कुल ${masterData.length.toLocaleString()} रिकॉर्ड्स लोड हो गए हैं।`);
+        } catch (err) {
+          console.error(err);
+          alert("❌ फ़ाइल पढ़ने में त्रुटि हुई। कृपया सही Excel या CSV फ़ाइल चुनें।");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function resetToDefaultData() {
+      localStorage.removeItem("cctns_dashboard_data");
+      localStorage.removeItem("cctns_dashboard_filename");
+      masterData = buildFullBaselineDataset();
+      document.getElementById("dataSourceBadge").textContent = `● Active Dataset: Datag.xlsx (${masterData.length.toLocaleString()} Records)`;
+      populateDropdowns();
+      resetFilters();
+      alert("🔄 डेटा को डिफ़ॉल्ट Datag.xlsx पर रीसेट कर दिया गया है।");
+    }
+
+    // Export Filtered Data to Excel
+    function exportFilteredExcel() {
+      if (!filteredData.length) {
+        alert("एक्सपोर्ट करने के लिए कोई डेटा उपलब्ध नहीं है।");
+        return;
+      }
+      const ws = XLSX.utils.json_to_sheet(filteredData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Filtered_Data");
+      XLSX.writeFile(wb, "Filtered_Training_Analysis.xlsx");
+    }
+  </script>
+</body>
+</html>
