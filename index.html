@@ -3,31 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CCTNS & New Laws Training Analytics Dashboard | Lucknow Commissionerate</title>
-  <!-- Tailwind CSS -->
+  <title>Live CCTNS & New Laws Analytics Dashboard | Lucknow Commissionerate</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- SheetJS for Excel/CSV Read & Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0b1120;
-      color: #e2e8f0;
-    }
-    .brand-font {
-      font-family: 'Orbitron', sans-serif;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #e2e8f0; }
+    .brand-font { font-family: 'Orbitron', sans-serif; }
     .glass-card {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(10px);
     }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -47,43 +36,46 @@
           <h1 class="brand-font text-lg md:text-xl font-bold text-cyan-400 tracking-wide">
             TRAINING ANALYTICS PORTAL
           </h1>
-          <p class="text-xs text-slate-400">Police Line Lucknow Commissionerate • CCTNS & New Laws</p>
+          <p class="text-xs text-slate-400">Police Line Lucknow Commissionerate • Live Cloud Sync</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <span id="dataSourceBadge" class="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-          ● Active Dataset: Date 14.11.2026 Time 02:25 PM
+      <div class="flex flex-wrap items-center gap-3">
+        <span id="syncStatusBadge" class="text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+          ⏳ Connecting to Cloud...
         </span>
-        <button id="adminToggleBtn" onclick="openAdminModal()" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition flex items-center gap-1.5">
+        <button onclick="fetchLiveCloudData()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-600 text-xs font-semibold transition">
+          🔄 Refresh
+        </button>
+        <button onclick="exportFilteredExcel()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-semibold transition">
+          ⬇️ Export Excel
+        </button>
+        <button id="adminToggleBtn" onclick="openAdminModal()" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition">
           🔐 Admin Panel
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Admin Control Drawer (Visible only after Admin Login) -->
+  <!-- Admin Control Drawer -->
   <section id="adminPanelBar" class="hidden bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border-b border-cyan-400/40 px-6 py-5">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded">Admin Mode Active</span>
-          <h2 class="text-base font-bold text-white">डेटा अपडेट एवं प्रबंधन पैनल (Excel / CSV Upload)</h2>
+          <span class="px-2 py-0.5 text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded">Admin Cloud Mode</span>
+          <h2 class="text-base font-bold text-white">Google Sheet मास्टर डेटा अपडेट पैनल</h2>
         </div>
         <p class="text-xs text-slate-300 mt-1">
-          नई <code class="text-cyan-300">.xlsx</code>, <code class="text-cyan-300">.xls</code>, या <code class="text-cyan-300">.csv</code> फ़ाइल अपलोड करें। यह सभी Normal Users के लिए डैशबोर्ड डेटा तुरंत अपडेट कर देगा।
+          यहाँ से अपलोड की गई <code class="text-cyan-300">.xlsx / .xls / .csv</code> फ़ाइल सीधे Google Sheet में सेव होगी और सभी Normal Users को तुरंत दिखेगी।
         </p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <label class="cursor-pointer px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition flex items-center gap-2">
-          <span>📂 Upload Excel / CSV File</span>
-          <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleFileUpload(event)" />
+        <label id="uploadLabel" class="cursor-pointer px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition flex items-center gap-2">
+          <span id="uploadBtnText">☁️ Upload & Sync Excel / CSV to Cloud</span>
+          <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleCloudFileUpload(event)" />
         </label>
-        <button onclick="resetToDefaultData()" class="px-3.5 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 text-xs font-semibold transition">
-          🔄 Reset Default Data
-        </button>
-        <button onclick="logoutAdmin()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold transition">
+        <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold transition">
           🚪 Logout
         </button>
       </div>
@@ -93,20 +85,18 @@
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
 
-    <!-- Filter Section for Normal Users -->
+    <!-- Filters -->
     <div class="glass-card rounded-xl p-5">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-cyan-300 uppercase tracking-wider">🔍 Data Filters (Normal User Analysis)</h3>
         <button onclick="resetFilters()" class="text-xs text-cyan-400 hover:underline">Reset All Filters</button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <!-- Search -->
         <div>
           <label class="block text-xs text-slate-400 mb-1">Search PNO / Name</label>
-          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="उदा. 170953003 या ABHINAV..."
+          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="PNO या नाम लिखें..."
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
-        <!-- Rank Filter -->
         <div>
           <label class="block text-xs text-slate-400 mb-1">Rank (पद)</label>
           <select id="rankFilter" onchange="applyFilters()"
@@ -114,7 +104,6 @@
             <option value="ALL">All Ranks (सभी पद)</option>
           </select>
         </div>
-        <!-- CCTNS Certified Filter -->
         <div>
           <label class="block text-xs text-slate-400 mb-1">CCTNS Certified</label>
           <select id="cctnsFilter" onchange="applyFilters()"
@@ -124,7 +113,6 @@
             <option value="No">No (Pending)</option>
           </select>
         </div>
-        <!-- New Laws Grade Filter -->
         <div>
           <label class="block text-xs text-slate-400 mb-1">New Laws Best Grade</label>
           <select id="nlGradeFilter" onchange="applyFilters()"
@@ -136,7 +124,6 @@
             <option value="C">Grade C</option>
           </select>
         </div>
-        <!-- Posting Unit Filter -->
         <div>
           <label class="block text-xs text-slate-400 mb-1">Posting Unit</label>
           <select id="unitFilter" onchange="applyFilters()"
@@ -147,13 +134,13 @@
       </div>
     </div>
 
-    <!-- KPI Summary Cards -->
+    <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
         <p class="text-xs text-slate-400 uppercase font-semibold">Filtered Personnel (कुल कार्मिक)</p>
         <div class="flex items-baseline justify-between mt-2">
           <h4 id="kpiTotal" class="text-3xl font-bold text-white">0</h4>
-          <span id="kpiTotalPct" class="text-xs text-cyan-400 font-medium">100% of total</span>
+          <span id="kpiTotalPct" class="text-xs text-cyan-400 font-medium">100%</span>
         </div>
       </div>
 
@@ -182,34 +169,24 @@
       </div>
     </div>
 
-    <!-- Charts Grid -->
+    <!-- Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Chart 1: Rank-wise CCTNS Certification Stacked Bar -->
       <div class="glass-card rounded-xl p-5 lg:col-span-2">
         <h3 class="text-sm font-semibold text-slate-200 mb-4">📊 Rank-wise CCTNS Certification Status (पदवार स्थिति)</h3>
-        <div class="h-72">
-          <canvas id="rankCctnsChart"></canvas>
-        </div>
+        <div class="h-72"><canvas id="rankCctnsChart"></canvas></div>
       </div>
-
-      <!-- Chart 2: New Laws Best Grade Doughnut -->
       <div class="glass-card rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution</h3>
-        <div class="h-72 flex items-center justify-center">
-          <canvas id="nlGradeChart"></canvas>
-        </div>
+        <div class="h-72 flex items-center justify-center"><canvas id="nlGradeChart"></canvas></div>
       </div>
     </div>
 
-    <!-- Chart 3: Rank-wise New Laws Grades Breakdown -->
     <div class="glass-card rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-200 mb-4">📈 Rank-wise New Laws Grade Comparison (AA, A, B, C)</h3>
-      <div class="h-64">
-        <canvas id="rankNlGradeChart"></canvas>
-      </div>
+      <div class="h-64"><canvas id="rankNlGradeChart"></canvas></div>
     </div>
 
-    <!-- Data Table Section -->
+    <!-- Data Table -->
     <div class="glass-card rounded-xl overflow-hidden">
       <div class="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
         <h3 class="text-sm font-semibold text-cyan-300">📋 Personnel Detailed Records</h3>
@@ -238,9 +215,7 @@
               <th class="py-3 px-4 text-center">New Laws Grade</th>
             </tr>
           </thead>
-          <tbody id="dataTableBody" class="divide-y divide-slate-800/80 text-slate-200">
-            <!-- Rows injected via JS -->
-          </tbody>
+          <tbody id="dataTableBody" class="divide-y divide-slate-800/80 text-slate-200"></tbody>
         </table>
       </div>
     </div>
@@ -250,17 +225,14 @@
   <div id="adminModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass-card rounded-2xl max-w-md w-full p-6 border border-cyan-500/40">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="brand-font text-base font-bold text-cyan-400">🔐 ADMIN AUTHENTICATION</h3>
+        <h3 class="brand-font text-base font-bold text-cyan-400">🔐 CLOUD ADMIN LOGIN</h3>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-4">
-        डेटा अपडेट करने के लिए Admin Username और Password दर्ज करें।<br>
-  
-      </p>
+      <p class="text-xs text-slate-400 mb-4">Google Sheet का मास्टर डेटा अपडेट करने के लिए Admin क्रेडेंशियल्स दर्ज करें।</p>
       <form onsubmit="verifyAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-300 mb-1">Username</label>
-          <input type="text" id="adminUser" required placeholder="Username"
+          <input type="text" id="adminUser" required placeholder="admin"
             class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
         <div>
@@ -268,118 +240,72 @@
           <input type="password" id="adminPass" required placeholder="••••••••"
             class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
-        <p id="loginError" class="hidden text-xs text-rose-400 font-medium">❌ गलत Username या Password! पुनः प्रयास करें।</p>
+        <p id="loginError" class="hidden text-xs text-rose-400 font-medium"></p>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeAdminModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300 hover:bg-slate-700">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white">Login</button>
+          <button type="submit" id="loginSubmitBtn" class="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white">Verify & Login</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // 1. Default Exact Summary & Sample Dataset extracted from Datag.xlsx (2,978 records)
-    // Note: Admin can upload the full Datag.xlsx anytime to load all 2,978 live rows immediately.
-    const DEFAULT_RECORDS = [
-      { "PNO": "170953003", "Name": "ABHINAV SHUKLA", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "175090123", "Name": "ABHISHEK SINGH YADAV", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "264100182", "Name": "ABHISHEK YADAV", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "264100472", "Name": "ADITYA PANDEY", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "170952068", "Name": "AMIT KUMAR JAISWAL", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "190951061", "Name": "ANIRUDH KUMAR", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "264100515", "Name": "ANJALI", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "No", "CCTNS Best Grade": "-", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" },
-      { "PNO": "190951957", "Name": "ANJANI KUMAR", "Rank": "COMPUTER OPERATOR GRADE -A", "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE", "Posting Unit": "N/A", "CCTNS Assigned": "Yes", "CCTNS Certified": "Yes", "CCTNS Best Grade": "AA", "New Laws Certified": "Yes", "New Laws Best Grade": "AA" }
-    ];
+    // ⚠️ यहाँ अपना Google Apps Script Web App URL पेस्ट करें:
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8Mp_O5mh8FJeO9iu8rSZPV1RTVtHHgGOE2GmmA9SyTVWwvb2DM9r7JbA7b-4c-Jq1mQ/exec";
 
-    // Generate full statistical replica of Datag.xlsx (2,978 rows) so all graphs match exact Excel counts out-of-the-box
-    function buildFullBaselineDataset() {
-      const distribution = [
-        { rank: "SI CP", cctnsYes: 1968, cctnsNo: 220, nl: { AA: 1308, A: 445, B: 261, C: 174 } },
-        { rank: "CONSTABLE CP", cctnsYes: 377, cctnsNo: 4, nl: { AA: 232, A: 97, B: 28, C: 24 } },
-        { rank: "INSPR CP", cctnsYes: 103, cctnsNo: 40, nl: { AA: 73, A: 46, B: 17, C: 7 } },
-        { rank: "HC CP", cctnsYes: 113, cctnsNo: 14, nl: { AA: 76, A: 33, B: 17, C: 1 } },
-        { rank: "COMPUTER OPERATOR GRADE -A", cctnsYes: 42, cctnsNo: 51, nl: { AA: 69, A: 19, B: 5, C: 0 } },
-        { rank: "COMPUTER OPERATOR GRADE -B", cctnsYes: 36, cctnsNo: 10, nl: { AA: 26, A: 16, B: 3, C: 1 } }
-      ];
-
-      let fullData = [...DEFAULT_RECORDS];
-      // Adjust counts for already added 8 CO-A records (5 Yes, 3 No, 8 AA)
-      distribution[4].cctnsYes -= 5;
-      distribution[4].cctnsNo -= 3;
-      distribution[4].nl.AA -= 8;
-
-      let pnoCounter = 180100001;
-      distribution.forEach(group => {
-        const gradesPool = [
-          ...Array(group.nl.AA).fill("AA"),
-          ...Array(group.nl.A).fill("A"),
-          ...Array(group.nl.B).fill("B"),
-          ...Array(group.nl.C).fill("C")
-        ];
-        const cctnsPool = [
-          ...Array(group.cctnsYes).fill("Yes"),
-          ...Array(group.cctnsNo).fill("No")
-        ];
-        for (let i = 0; i < cctnsPool.length; i++) {
-          const isCert = cctnsPool[i] === "Yes";
-          fullData.push({
-            "PNO": String(pnoCounter++),
-            "Name": `PERSONNEL ${pnoCounter - 180100000}`,
-            "Rank": group.rank,
-            "Posting District": "POLICE LINE LUCKNOW COMMISSIONERATE",
-            "Posting Unit": (pnoCounter === 180100002) ? "BBD" : "N/A",
-            "CCTNS Assigned": "Yes",
-            "CCTNS Certified": isCert ? "Yes" : "No",
-            "CCTNS Best Grade": isCert ? "AA" : "-",
-            "New Laws Certified": "Yes",
-            "New Laws Best Grade": gradesPool[i] || "AA"
-          });
-        }
-      });
-      return fullData;
-    }
-
-    // Application State
     let masterData = [];
     let filteredData = [];
     let currentPage = 1;
     const rowsPerPage = 15;
-    let isAdminLoggedIn = false;
+    let adminCreds = null;
 
-    // Chart Instances
     let rankCctnsChartInst = null;
     let nlGradeChartInst = null;
     let rankNlGradeChartInst = null;
 
-    // Initialize Dashboard
     window.addEventListener("DOMContentLoaded", () => {
-      const savedData = localStorage.getItem("cctns_dashboard_data");
-      const savedName = localStorage.getItem("cctns_dashboard_filename");
-      if (savedData) {
-        masterData = JSON.parse(savedData);
-        document.getElementById("dataSourceBadge").textContent = `● Active Dataset: ${savedName || 'Uploaded File'} (${masterData.length.toLocaleString()} Records)`;
-      } else {
-        masterData = buildFullBaselineDataset();
-      }
-      populateDropdowns();
-      applyFilters();
+      fetchLiveCloudData();
     });
 
-    // Populate Dynamic Dropdowns
+    // 1. Google Sheet से रीयल-टाइम डेटा लोड करें
+    async function fetchLiveCloudData() {
+      const badge = document.getElementById("syncStatusBadge");
+      badge.className = "text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30";
+      badge.textContent = "⏳ Syncing from Google Sheet...";
+
+      try {
+        if (SCRIPT_URL.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
+          throw new Error("कृपया SCRIPT_URL में अपना Apps Script URL डालें।");
+        }
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+
+        if (data.status === "success") {
+          masterData = data.records || [];
+          badge.className = "text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+          badge.textContent = `● Live Cloud Data (${masterData.length.toLocaleString()} Records) • Updated: ${data.lastUpdated || "Now"}`;
+          populateDropdowns();
+          applyFilters();
+        } else {
+          throw new Error(data.message || "Failed to load data");
+        }
+      } catch (err) {
+        badge.className = "text-xs px-3 py-1.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30";
+        badge.textContent = `⚠️ ${err.message}`;
+      }
+    }
+
     function populateDropdowns() {
       const ranks = [...new Set(masterData.map(r => r["Rank"]).filter(Boolean))].sort();
       const units = [...new Set(masterData.map(r => r["Posting Unit"]).filter(Boolean))].sort();
 
-      const rankSelect = document.getElementById("rankFilter");
-      rankSelect.innerHTML = `<option value="ALL">All Ranks (सभी पद)</option>` +
-        ranks.map(r => `<option value="${r}">${r}</option>`).join("");
+      document.getElementById("rankFilter").innerHTML =
+        `<option value="ALL">All Ranks (सभी पद)</option>` + ranks.map(r => `<option value="${r}">${r}</option>`).join("");
 
-      const unitSelect = document.getElementById("unitFilter");
-      unitSelect.innerHTML = `<option value="ALL">All Units</option>` +
-        units.map(u => `<option value="${u}">${u}</option>`).join("");
+      document.getElementById("unitFilter").innerHTML =
+        `<option value="ALL">All Units</option>` + units.map(u => `<option value="${u}">${u}</option>`).join("");
     }
 
-    // Filter Logic
     function applyFilters() {
       const query = document.getElementById("searchInput").value.trim().toLowerCase();
       const rank = document.getElementById("rankFilter").value;
@@ -413,7 +339,6 @@
       applyFilters();
     }
 
-    // Update KPI Cards
     function updateKPIs() {
       const total = filteredData.length;
       const masterTotal = masterData.length || 1;
@@ -423,22 +348,17 @@
 
       document.getElementById("kpiTotal").textContent = total.toLocaleString();
       document.getElementById("kpiTotalPct").textContent = `${((total / masterTotal) * 100).toFixed(1)}% of total`;
-
       document.getElementById("kpiCctnsYes").textContent = cctnsYes.toLocaleString();
       document.getElementById("kpiCctnsPct").textContent = total ? `${((cctnsYes / total) * 100).toFixed(1)}%` : "0%";
-
       document.getElementById("kpiCctnsNo").textContent = cctnsNo.toLocaleString();
       document.getElementById("kpiCctnsNoPct").textContent = total ? `${((cctnsNo / total) * 100).toFixed(1)}%` : "0%";
-
       document.getElementById("kpiNlAA").textContent = nlAA.toLocaleString();
       document.getElementById("kpiNlAAPct").textContent = total ? `${((nlAA / total) * 100).toFixed(1)}%` : "0%";
     }
 
-    // Update All Charts
     function updateCharts() {
       const ranks = [...new Set(filteredData.map(r => r["Rank"]))];
 
-      // 1. Rank-wise CCTNS Certified vs Pending
       const yesCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "Yes").length);
       const noCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "No").length);
 
@@ -453,8 +373,7 @@
           ]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: "#cbd5e1" } } },
           scales: {
             x: { stacked: true, ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.1)" } },
@@ -463,7 +382,6 @@
         }
       });
 
-      // 2. New Laws Best Grade Doughnut
       const grades = ["AA", "A", "B", "C"];
       const gradeCounts = grades.map(g => filteredData.filter(r => r["New Laws Best Grade"] === g).length);
 
@@ -472,27 +390,19 @@
         type: "doughnut",
         data: {
           labels: ["Grade AA", "Grade A", "Grade B", "Grade C"],
-          datasets: [{
-            data: gradeCounts,
-            backgroundColor: ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444"],
-            borderColor: "#0f172a",
-            borderWidth: 2
-          }]
+          datasets: [{ data: gradeCounts, backgroundColor: ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444"], borderColor: "#0f172a", borderWidth: 2 }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1" } } }
         }
       });
 
-      // 3. Rank-wise New Laws Grade Breakdown
       const gradeColors = { AA: "#06b6d4", A: "#3b82f6", B: "#f59e0b", C: "#ef4444" };
       const nlDatasets = grades.map(g => ({
         label: `Grade ${g}`,
         data: ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["New Laws Best Grade"] === g).length),
-        backgroundColor: gradeColors[g],
-        borderRadius: 3
+        backgroundColor: gradeColors[g], borderRadius: 3
       }));
 
       if (rankNlGradeChartInst) rankNlGradeChartInst.destroy();
@@ -500,8 +410,7 @@
         type: "bar",
         data: { labels: ranks, datasets: nlDatasets },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: "#cbd5e1" } } },
           scales: {
             x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { display: false } },
@@ -511,7 +420,6 @@
       });
     }
 
-    // Render Paginated Table
     function renderTable() {
       const tbody = document.getElementById("dataTableBody");
       const totalPages = Math.max(1, Math.ceil(filteredData.length / rowsPerPage));
@@ -526,7 +434,7 @@
       document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
 
       if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">कोई रिकॉर्ड नहीं मिला। कृपया फ़िल्टर बदलें।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">कोई डेटा उपलब्ध नहीं है। Admin Panel से Excel फ़ाइल अपलोड करें या फ़िल्टर बदलें।</td></tr>`;
         return;
       }
 
@@ -550,9 +458,7 @@
             <td class="py-2.5 px-4 text-center">${cctnsBadge}</td>
             <td class="py-2.5 px-4 text-center font-semibold text-slate-200">${r["CCTNS Best Grade"]}</td>
             <td class="py-2.5 px-4 text-center text-emerald-400 font-semibold">${r["New Laws Certified"]}</td>
-            <td class="py-2.5 px-4 text-center">
-              <span class="px-2 py-0.5 rounded border font-bold ${gradeColor}">${r["New Laws Best Grade"]}</span>
-            </td>
+            <td class="py-2.5 px-4 text-center"><span class="px-2 py-0.5 rounded border font-bold ${gradeColor}">${r["New Laws Best Grade"]}</span></td>
           </tr>
         `;
       }).join("");
@@ -563,9 +469,9 @@
       renderTable();
     }
 
-    // ================= ADMIN AUTH & FILE UPLOAD =================
+    // ================= SERVER-SIDE ADMIN AUTH & CLOUD UPLOAD =================
     function openAdminModal() {
-      if (isAdminLoggedIn) {
+      if (adminCreds) {
         document.getElementById("adminPanelBar").classList.toggle("hidden");
         return;
       }
@@ -577,50 +483,72 @@
       document.getElementById("adminModal").classList.add("hidden");
     }
 
-    function verifyAdminLogin(e) {
+    async function verifyAdminLogin(e) {
       e.preventDefault();
-      const user = document.getElementById("adminUser").value.trim();
-      const pass = document.getElementById("adminPass").value.trim();
+      const username = document.getElementById("adminUser").value.trim();
+      const password = document.getElementById("adminPass").value.trim();
+      const btn = document.getElementById("loginSubmitBtn");
+      const errEl = document.getElementById("loginError");
 
-      // Admin Credentials Check
-      if (user === "9454400137" && pass === "cctns#321") {
-        isAdminLoggedIn = true;
-        closeAdminModal();
-        document.getElementById("adminPanelBar").classList.remove("hidden");
-        document.getElementById("adminToggleBtn").innerHTML = "⚙️ Admin Controls";
-        document.getElementById("adminToggleBtn").classList.replace("bg-cyan-600", "bg-amber-600");
-      } else {
-        document.getElementById("loginError").classList.remove("hidden");
+      btn.disabled = true;
+      btn.textContent = "Verifying...";
+      errEl.classList.add("hidden");
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "login", username, password })
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          adminCreds = { username, password };
+          closeAdminModal();
+          document.getElementById("adminPanelBar").classList.remove("hidden");
+          document.getElementById("adminToggleBtn").textContent = "⚙️ Admin Controls";
+          document.getElementById("adminToggleBtn").classList.replace("bg-cyan-600", "bg-amber-600");
+        } else {
+          errEl.textContent = `❌ ${data.message || "गलत Username या Password!"}`;
+          errEl.classList.remove("hidden");
+        }
+      } catch (err) {
+        errEl.textContent = "❌ सर्वर से संपर्क नहीं हो सका। SCRIPT_URL जाँचें।";
+        errEl.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Verify & Login";
       }
     }
 
     function logoutAdmin() {
-      isAdminLoggedIn = false;
+      adminCreds = null;
       document.getElementById("adminPanelBar").classList.add("hidden");
-      document.getElementById("adminToggleBtn").innerHTML = "🔐 Admin Panel";
+      document.getElementById("adminToggleBtn").textContent = "🔐 Admin Panel";
       document.getElementById("adminToggleBtn").classList.replace("bg-amber-600", "bg-cyan-600");
     }
 
-    // Parse Uploaded Excel (.xlsx/.xls) or CSV (.csv) File
-    function handleFileUpload(event) {
+    // Excel/CSV फ़ाइल को पढ़कर सीधे Google Sheet में अपलोड करें
+    function handleCloudFileUpload(event) {
       const file = event.target.files[0];
-      if (!file) return;
+      if (!file || !adminCreds) return;
+
+      const btnText = document.getElementById("uploadBtnText");
+      btnText.textContent = "⏳ Reading & Uploading to Google Sheet...";
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: "array" });
-          const firstSheet = workbook.SheetNames[0];
-          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: "N/A" });
+          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "N/A" });
 
           if (!rawJson.length) {
             alert("⚠️ अपलोड की गई फ़ाइल खाली है!");
+            btnText.textContent = "☁️ Upload & Sync Excel / CSV to Cloud";
             return;
           }
 
-          // Normalize fields
-          masterData = rawJson.map(row => ({
+          const cleanedRecords = rawJson.map(row => ({
             "PNO": String(row["PNO"] || "").trim(),
             "Name": String(row["Name"] || "").trim(),
             "Rank": String(row["Rank"] || "UNKNOWN").trim(),
@@ -633,33 +561,34 @@
             "New Laws Best Grade": String(row["New Laws Best Grade"] || "-").trim()
           }));
 
-          // Persist to localStorage
-          localStorage.setItem("cctns_dashboard_data", JSON.stringify(masterData));
-          localStorage.setItem("cctns_dashboard_filename", file.name);
+          const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "upload",
+              username: adminCreds.username,
+              password: adminCreds.password,
+              records: cleanedRecords
+            })
+          });
 
-          document.getElementById("dataSourceBadge").textContent = `● Active Dataset: ${file.name} (${masterData.length.toLocaleString()} Records)`;
-          populateDropdowns();
-          resetFilters();
-          alert(`✅ सफलतापूर्वक अपडेट किया गया! कुल ${masterData.length.toLocaleString()} रिकॉर्ड्स लोड हो गए हैं।`);
+          const result = await res.json();
+          if (result.status === "success") {
+            alert(`✅ ${result.message}`);
+            await fetchLiveCloudData();
+          } else {
+            alert(`❌ त्रुटि: ${result.message}`);
+          }
         } catch (err) {
           console.error(err);
-          alert("❌ फ़ाइल पढ़ने में त्रुटि हुई। कृपया सही Excel या CSV फ़ाइल चुनें।");
+          alert("❌ क्लाउड अपलोड में समस्या आई। कृपया पुनः प्रयास करें।");
+        } finally {
+          btnText.textContent = "☁️ Upload & Sync Excel / CSV to Cloud";
+          event.target.value = "";
         }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    function resetToDefaultData() {
-      localStorage.removeItem("cctns_dashboard_data");
-      localStorage.removeItem("cctns_dashboard_filename");
-      masterData = buildFullBaselineDataset();
-      document.getElementById("dataSourceBadge").textContent = `● Active Dataset: Datag.xlsx (${masterData.length.toLocaleString()} Records)`;
-      populateDropdowns();
-      resetFilters();
-      alert("🔄 डेटा को डिफ़ॉल्ट Datag.xlsx पर रीसेट कर दिया गया है।");
-    }
-
-    // Export Filtered Data to Excel
     function exportFilteredExcel() {
       if (!filteredData.length) {
         alert("एक्सपोर्ट करने के लिए कोई डेटा उपलब्ध नहीं है।");
