@@ -258,12 +258,12 @@
       </div>
       <p class="text-xs text-slate-400 mb-4">
         डेटा अपडेट करने के लिए Admin Username और Password दर्ज करें।<br>
-        <span class="text-amber-300/90">(Demo Credentials: <b>admin</b> / <b>admin123</b>)</span>
+  
       </p>
       <form onsubmit="verifyAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-300 mb-1">Username</label>
-          <input type="text" id="adminUser" required placeholder="admin"
+          <input type="text" id="adminUser" required placeholder="Username"
             class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
         <div>
@@ -586,7 +586,7 @@
       const pass = document.getElementById("adminPass").value.trim();
 
       // Admin Credentials Check
-      if (user === "admin" && pass === "admin123") {
+      if (user === "9454400137" && pass === "cctns#321") {
         isAdminLoggedIn = true;
         closeAdminModal();
         document.getElementById("adminPanelBar").classList.remove("hidden");
