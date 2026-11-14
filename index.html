@@ -21,12 +21,34 @@
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+
+    /* Print styling to ensure clean A4 white background PDF */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printableArea, #printableArea * {
+        visibility: visible;
+      }
+      #printableArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 10px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
   <!-- Top Navbar -->
-  <header class="glass-card sticky top-0 z-40 border-b border-cyan-500/30 px-6 py-4">
+  <header class="glass-card sticky top-0 z-40 border-b border-cyan-500/30 px-6 py-4 no-print">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 font-bold text-xl">
@@ -55,7 +77,7 @@
   </header>
 
   <!-- Admin Control Drawer -->
-  <section id="adminPanelBar" class="hidden bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border-b border-cyan-400/40 px-6 py-5">
+  <section id="adminPanelBar" class="hidden no-print bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border-b border-cyan-400/40 px-6 py-5">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
@@ -83,7 +105,7 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
 
     <!-- Filters -->
-    <div class="glass-card rounded-xl p-5">
+    <div class="glass-card rounded-xl p-5 no-print">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-cyan-300 uppercase tracking-wider">🔍 Data Filters (Normal User Analysis)</h3>
         <button onclick="resetFilters()" class="text-xs text-cyan-400 hover:underline">Reset All Filters</button>
@@ -102,12 +124,14 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">CCTNS Certified</label>
-          <select id="cctnsFilter" onchange="applyFilters()"
+          <label class="block text-xs text-slate-400 mb-1">CCTNS Best Grade</label>
+          <select id="cctnsGradeFilter" onchange="applyFilters()"
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <option value="ALL">All Status (Yes & No)</option>
-            <option value="Yes">Yes (Certified)</option>
-            <option value="No">No (Pending)</option>
+            <option value="ALL">All Grades (AA, A, B, C)</option>
+            <option value="AA">Grade AA</option>
+            <option value="A">Grade A</option>
+            <option value="B">Grade B</option>
+            <option value="C">Grade C</option>
           </select>
         </div>
         <div>
@@ -132,7 +156,7 @@
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
         <p class="text-xs text-slate-400 uppercase font-semibold">Filtered Personnel (कुल कार्मिक)</p>
         <div class="flex items-baseline justify-between mt-2">
@@ -142,54 +166,54 @@
       </div>
 
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS Certified (प्रमाणित)</p>
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS + NCL With AA GRADE</p>
         <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiCctnsYes" class="text-3xl font-bold text-emerald-400">0</h4>
-          <span id="kpiCctnsPct" class="text-xs text-emerald-300 font-medium">0%</span>
-        </div>
-      </div>
-
-      <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
-        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS Pending (लंबित)</p>
-        <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiCctnsNo" class="text-3xl font-bold text-rose-400">0</h4>
-          <span id="kpiCctnsNoPct" class="text-xs text-rose-300 font-medium">0%</span>
+          <h4 id="kpiBothAA" class="text-3xl font-bold text-emerald-400">0</h4>
+          <span id="kpiBothAAPct" class="text-xs text-emerald-300 font-medium">0%</span>
         </div>
       </div>
 
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400">
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS 'AA' Grade</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiCctnsAA" class="text-3xl font-bold text-amber-400">0</h4>
+          <span id="kpiCctnsAAPct" class="text-xs text-amber-300 font-medium">0%</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
         <p class="text-xs text-slate-400 uppercase font-semibold">New Laws 'AA' Grade</p>
         <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiNlAA" class="text-3xl font-bold text-amber-400">0</h4>
-          <span id="kpiNlAAPct" class="text-xs text-amber-300 font-medium">0%</span>
+          <h4 id="kpiNlAA" class="text-3xl font-bold text-cyan-400">0</h4>
+          <span id="kpiNlAAPct" class="text-xs text-cyan-300 font-medium">0%</span>
         </div>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="glass-card rounded-xl p-5 lg:col-span-2">
-        <h3 class="text-sm font-semibold text-slate-200 mb-4">📊 Rank-wise CCTNS Certification Status (पदवार स्थिति)</h3>
-        <div class="h-72"><canvas id="rankCctnsChart"></canvas></div>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 no-print">
+      <div class="glass-card rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 CCTNS Best Grade Distribution (Inc. No Grade)</h3>
+        <div class="h-72 flex items-center justify-center"><canvas id="cctnsGradeChart"></canvas></div>
       </div>
       <div class="glass-card rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution</h3>
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution (Inc. No Grade)</h3>
         <div class="h-72 flex items-center justify-center"><canvas id="nlGradeChart"></canvas></div>
       </div>
     </div>
 
-    <div class="glass-card rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-200 mb-4">📈 Rank-wise New Laws Grade Comparison (AA, A, B, C)</h3>
-      <div class="h-64"><canvas id="rankNlGradeChart"></canvas></div>
-    </div>
-
-    <!-- Data Table -->
-    <div class="glass-card rounded-xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold text-cyan-300">📋 Personnel Detailed Records</h3>
+    <!-- Data Table (Printable Area for A4 PDF Save) -->
+    <div id="printableArea" class="glass-card rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <h3 class="text-sm font-semibold text-cyan-300">📋 Personnel Detailed Records</h3>
+          <button onclick="downloadFilteredPDF()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow transition flex items-center gap-1.5 no-print">
+            📄 Download PDF
+          </button>
+        </div>
         <div class="flex items-center gap-3 text-xs text-slate-400">
           <span id="tableCountInfo">Showing 0 records</span>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 no-print">
             <button onclick="changePage(-1)" id="prevPageBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40">Prev</button>
             <span id="pageIndicator" class="px-2 text-slate-200 font-medium">1 / 1</span>
             <button onclick="changePage(1)" id="nextPageBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40">Next</button>
@@ -247,7 +271,6 @@
   </div>
 
   <script>
-    // ⚠️ यहाँ अपना Google Apps Script Web App URL पेस्ट करें:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLEQ-2vfsIuT5Ny7bMSbYWj3GVpmO3LLLK74XHnyIkLdUEvqRK27cEFUfhl-xGpRULuA/exec";
 
     let masterData = [];
@@ -256,31 +279,49 @@
     const rowsPerPage = 15;
     let adminCreds = null;
 
-    let rankCctnsChartInst = null;
+    let cctnsGradeChartInst = null;
     let nlGradeChartInst = null;
-    let rankNlGradeChartInst = null;
 
     window.addEventListener("DOMContentLoaded", () => {
       fetchLiveCloudData();
     });
 
-    // 1. Google Sheet से रीयल-टाइम डेटा लोड करें
     async function fetchLiveCloudData() {
       const badge = document.getElementById("syncStatusBadge");
       badge.className = "text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30";
-      badge.textContent = "⏳ Syncing from Google Sheet...";
+      badge.textContent = "⏳ Syncing from Cloud...";
 
       try {
         if (SCRIPT_URL.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
           throw new Error("कृपया SCRIPT_URL में अपना Apps Script URL डालें।");
         }
-        const res = await fetch(SCRIPT_URL);
+        const res = await fetch(SCRIPT_URL, { redirect: "follow" });
         const data = await res.json();
 
         if (data.status === "success") {
           masterData = data.records || [];
+          
+          let formattedTime = "Now";
+          if (data.lastUpdated) {
+            const dateObj = new Date(data.lastUpdated);
+            if (!isNaN(dateObj.getTime())) {
+              formattedTime = dateObj.toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+              });
+            } else {
+              formattedTime = data.lastUpdated;
+            }
+          }
+
           badge.className = "text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
-          badge.textContent = `● Live Cloud Data (${masterData.length.toLocaleString()} Records) • Updated: ${data.lastUpdated || "Now"}`;
+          badge.textContent = `● Live Cloud Data (${masterData.length.toLocaleString()} Records) • Updated: ${formattedTime}`;
           populateDropdowns();
           applyFilters();
         } else {
@@ -306,7 +347,7 @@
     function applyFilters() {
       const query = document.getElementById("searchInput").value.trim().toLowerCase();
       const rank = document.getElementById("rankFilter").value;
-      const cctns = document.getElementById("cctnsFilter").value;
+      const cctnsGrade = document.getElementById("cctnsGradeFilter").value;
       const nlGrade = document.getElementById("nlGradeFilter").value;
       const unit = document.getElementById("unitFilter").value;
 
@@ -315,10 +356,17 @@
           String(row["PNO"]).toLowerCase().includes(query) ||
           String(row["Name"]).toLowerCase().includes(query);
         const matchRank = rank === "ALL" || row["Rank"] === rank;
-        const matchCctns = cctns === "ALL" || row["CCTNS Certified"] === cctns;
-        const matchNl = nlGrade === "ALL" || row["New Laws Best Grade"] === nlGrade;
+        
+        let rowCctnsGrade = String(row["CCTNS Best Grade"] || "-").trim().toUpperCase();
+        if (rowCctnsGrade === "" || rowCctnsGrade === "N/A" || rowCctnsGrade === "NULL") rowCctnsGrade = "-";
+        const matchCctnsGrade = cctnsGrade === "ALL" || rowCctnsGrade === cctnsGrade;
+
+        let rowNlGrade = String(row["New Laws Best Grade"] || "-").trim().toUpperCase();
+        if (rowNlGrade === "" || rowNlGrade === "N/A" || rowNlGrade === "NULL") rowNlGrade = "-";
+        const matchNl = nlGrade === "ALL" || rowNlGrade === nlGrade;
+
         const matchUnit = unit === "ALL" || row["Posting Unit"] === unit;
-        return matchSearch && matchRank && matchCctns && matchNl && matchUnit;
+        return matchSearch && matchRank && matchCctnsGrade && matchNl && matchUnit;
       });
 
       currentPage = 1;
@@ -330,7 +378,7 @@
     function resetFilters() {
       document.getElementById("searchInput").value = "";
       document.getElementById("rankFilter").value = "ALL";
-      document.getElementById("cctnsFilter").value = "ALL";
+      document.getElementById("cctnsGradeFilter").value = "ALL";
       document.getElementById("nlGradeFilter").value = "ALL";
       document.getElementById("unitFilter").value = "ALL";
       applyFilters();
@@ -339,80 +387,71 @@
     function updateKPIs() {
       const total = filteredData.length;
       const masterTotal = masterData.length || 1;
-      const cctnsYes = filteredData.filter(r => r["CCTNS Certified"] === "Yes").length;
-      const cctnsNo = filteredData.filter(r => r["CCTNS Certified"] === "No").length;
-      const nlAA = filteredData.filter(r => r["New Laws Best Grade"] === "AA").length;
+      
+      const cctnsAA = filteredData.filter(r => String(r["CCTNS Best Grade"]).trim().toUpperCase() === "AA").length;
+      const nlAA = filteredData.filter(r => String(r["New Laws Best Grade"]).trim().toUpperCase() === "AA").length;
+      
+      const bothAA = filteredData.filter(r => 
+        String(r["CCTNS Best Grade"]).trim().toUpperCase() === "AA" && 
+        String(r["New Laws Best Grade"]).trim().toUpperCase() === "AA"
+      ).length;
 
       document.getElementById("kpiTotal").textContent = total.toLocaleString();
       document.getElementById("kpiTotalPct").textContent = `${((total / masterTotal) * 100).toFixed(1)}% of total`;
-      document.getElementById("kpiCctnsYes").textContent = cctnsYes.toLocaleString();
-      document.getElementById("kpiCctnsPct").textContent = total ? `${((cctnsYes / total) * 100).toFixed(1)}%` : "0%";
-      document.getElementById("kpiCctnsNo").textContent = cctnsNo.toLocaleString();
-      document.getElementById("kpiCctnsNoPct").textContent = total ? `${((cctnsNo / total) * 100).toFixed(1)}%` : "0%";
+      
+      document.getElementById("kpiBothAA").textContent = bothAA.toLocaleString();
+      document.getElementById("kpiBothAAPct").textContent = total ? `${((bothAA / total) * 100).toFixed(1)}%` : "0%";
+      
+      document.getElementById("kpiCctnsAA").textContent = cctnsAA.toLocaleString();
+      document.getElementById("kpiCctnsAAPct").textContent = total ? `${((cctnsAA / total) * 100).toFixed(1)}%` : "0%";
+      
       document.getElementById("kpiNlAA").textContent = nlAA.toLocaleString();
       document.getElementById("kpiNlAAPct").textContent = total ? `${((nlAA / total) * 100).toFixed(1)}%` : "0%";
     }
 
     function updateCharts() {
-      const ranks = [...new Set(filteredData.map(r => r["Rank"]))];
+      const grades = ["AA", "A", "B", "C", "-"];
+      const gradeLabels = ["Grade AA", "Grade A", "Grade B", "Grade C", "No Grade / Pending (-)"];
+      const gradeColors = ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444", "#64748b"];
 
-      const yesCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "Yes").length);
-      const noCounts = ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["CCTNS Certified"] === "No").length);
+      function getGradeCount(field, targetGrade) {
+        return filteredData.filter(r => {
+          let val = String(r[field] || "-").trim().toUpperCase();
+          if (val === "" || val === "N/A" || val === "NULL" || val === "NONE") val = "-";
+          if (targetGrade === "-") {
+            return val === "-" || !["AA", "A", "B", "C"].includes(val);
+          }
+          return val === targetGrade;
+        }).length;
+      }
 
-      if (rankCctnsChartInst) rankCctnsChartInst.destroy();
-      rankCctnsChartInst = new Chart(document.getElementById("rankCctnsChart"), {
-        type: "bar",
+      const cctnsGradeCounts = grades.map(g => getGradeCount("CCTNS Best Grade", g));
+
+      if (cctnsGradeChartInst) cctnsGradeChartInst.destroy();
+      cctnsGradeChartInst = new Chart(document.getElementById("cctnsGradeChart"), {
+        type: "doughnut",
         data: {
-          labels: ranks,
-          datasets: [
-            { label: "CCTNS Certified (Yes)", data: yesCounts, backgroundColor: "#10b981", borderRadius: 4 },
-            { label: "CCTNS Pending (No)", data: noCounts, backgroundColor: "#f43f5e", borderRadius: 4 }
-          ]
+          labels: gradeLabels,
+          datasets: [{ data: cctnsGradeCounts, backgroundColor: gradeColors, borderColor: "#0f172a", borderWidth: 2 }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: "#cbd5e1" } } },
-          scales: {
-            x: { stacked: true, ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "rgba(148,163,184,0.1)" } },
-            y: { stacked: true, ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" } }
-          }
+          plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1", font: { size: 11 } } } }
         }
       });
 
-      const grades = ["AA", "A", "B", "C"];
-      const gradeCounts = grades.map(g => filteredData.filter(r => r["New Laws Best Grade"] === g).length);
+      const nlGradeCounts = grades.map(g => getGradeCount("New Laws Best Grade", g));
 
       if (nlGradeChartInst) nlGradeChartInst.destroy();
       nlGradeChartInst = new Chart(document.getElementById("nlGradeChart"), {
         type: "doughnut",
         data: {
-          labels: ["Grade AA", "Grade A", "Grade B", "Grade C"],
-          datasets: [{ data: gradeCounts, backgroundColor: ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444"], borderColor: "#0f172a", borderWidth: 2 }]
+          labels: gradeLabels,
+          datasets: [{ data: nlGradeCounts, backgroundColor: gradeColors, borderColor: "#0f172a", borderWidth: 2 }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1" } } }
-        }
-      });
-
-      const gradeColors = { AA: "#06b6d4", A: "#3b82f6", B: "#f59e0b", C: "#ef4444" };
-      const nlDatasets = grades.map(g => ({
-        label: `Grade ${g}`,
-        data: ranks.map(rk => filteredData.filter(r => r["Rank"] === rk && r["New Laws Best Grade"] === g).length),
-        backgroundColor: gradeColors[g], borderRadius: 3
-      }));
-
-      if (rankNlGradeChartInst) rankNlGradeChartInst.destroy();
-      rankNlGradeChartInst = new Chart(document.getElementById("rankNlGradeChart"), {
-        type: "bar",
-        data: { labels: ranks, datasets: nlDatasets },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: "#cbd5e1" } } },
-          scales: {
-            x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { display: false } },
-            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" } }
-          }
+          plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1", font: { size: 11 } } } }
         }
       });
     }
@@ -436,14 +475,28 @@
       }
 
       tbody.innerHTML = pageRows.map(r => {
-        const cctnsBadge = r["CCTNS Certified"] === "Yes"
+        const cctnsCertVal = String(r["CCTNS Certified"] || "No").trim();
+        const cctnsCertBadge = cctnsCertVal === "Yes"
           ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
           : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold">No</span>`;
 
-        const gradeColor = r["New Laws Best Grade"] === "AA" ? "text-cyan-300 bg-cyan-500/15 border-cyan-500/30"
-          : r["New Laws Best Grade"] === "A" ? "text-blue-300 bg-blue-500/15 border-blue-500/30"
-          : r["New Laws Best Grade"] === "B" ? "text-amber-300 bg-amber-500/15 border-amber-500/30"
-          : "text-rose-300 bg-rose-500/15 border-rose-500/30";
+        const nlCertVal = String(r["New Laws Certified"] || "No").trim();
+        const nlCertBadge = nlCertVal === "Yes" || nlCertVal.toLowerCase() === "yes"
+          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold">${nlCertVal}</span>`;
+
+        function getGradeBadge(gradeVal) {
+          const g = String(gradeVal || "-").trim().toUpperCase();
+          let styleClass = "text-slate-300 bg-slate-800 border-slate-700";
+          if (g === "AA") styleClass = "text-cyan-300 bg-cyan-500/15 border-cyan-500/30";
+          else if (g === "A") styleClass = "text-blue-300 bg-blue-500/15 border-blue-500/30";
+          else if (g === "B") styleClass = "text-amber-300 bg-amber-500/15 border-amber-500/30";
+          else if (g === "C") styleClass = "text-rose-300 bg-rose-500/15 border-rose-500/30";
+          return `<span class="px-2 py-0.5 rounded border font-bold ${styleClass}">${g}</span>`;
+        }
+
+        const cctnsGradeBadge = getGradeBadge(r["CCTNS Best Grade"]);
+        const nlGradeBadge = getGradeBadge(r["New Laws Best Grade"]);
 
         return `
           <tr class="hover:bg-slate-800/50 transition">
@@ -452,13 +505,44 @@
             <td class="py-2.5 px-4 text-slate-300">${r["Rank"]}</td>
             <td class="py-2.5 px-4 text-slate-400">${r["Posting District"]}</td>
             <td class="py-2.5 px-4 text-slate-400">${r["Posting Unit"] || "N/A"}</td>
-            <td class="py-2.5 px-4 text-center">${cctnsBadge}</td>
-            <td class="py-2.5 px-4 text-center font-semibold text-slate-200">${r["CCTNS Best Grade"]}</td>
-            <td class="py-2.5 px-4 text-center text-emerald-400 font-semibold">${r["New Laws Certified"]}</td>
-            <td class="py-2.5 px-4 text-center"><span class="px-2 py-0.5 rounded border font-bold ${gradeColor}">${r["New Laws Best Grade"]}</span></td>
+            <td class="py-2.5 px-4 text-center">${cctnsCertBadge}</td>
+            <td class="py-2.5 px-4 text-center">${cctnsGradeBadge}</td>
+            <td class="py-2.5 px-4 text-center">${nlCertBadge}</td>
+            <td class="py-2.5 px-4 text-center">${nlGradeBadge}</td>
           </tr>
         `;
       }).join("");
+    }
+
+    // Function to trigger native print dialog for clean A4 PDF saving with white background
+    function downloadFilteredPDF() {
+      if (!filteredData.length) {
+        alert("PDF में डाउनलोड करने के लिए कोई डेटा उपलब्ध नहीं है।");
+        return;
+      }
+
+      // Temporarily render all filtered rows in the table so all records are printed cleanly
+      const tbody = document.getElementById("dataTableBody");
+      tbody.innerHTML = filteredData.map(r => `
+        <tr style="border-bottom: 1px solid #cbd5e1; color: #000000 !important; background-color: #ffffff !important;">
+          <td style="padding: 6px 8px; font-family: monospace;">${r["PNO"]}</td>
+          <td style="padding: 6px 8px; font-weight: 500;">${r["Name"]}</td>
+          <td style="padding: 6px 8px;">${r["Rank"]}</td>
+          <td style="padding: 6px 8px;">${r["Posting District"]}</td>
+          <td style="padding: 6px 8px;">${r["Posting Unit"] || "N/A"}</td>
+          <td style="padding: 6px 8px; text-align: center;">${r["CCTNS Certified"]}</td>
+          <td style="padding: 6px 8px; text-align: center; font-weight: bold;">${r["CCTNS Best Grade"] || "-"}</td>
+          <td style="padding: 6px 8px; text-align: center;">${r["New Laws Certified"]}</td>
+          <td style="padding: 6px 8px; text-align: center; font-weight: bold;">${r["New Laws Best Grade"] || "-"}</td>
+        </tr>
+      `).join("");
+
+      window.print();
+
+      // Restore normal paginated view after print dialog closes
+      setTimeout(() => {
+        renderTable();
+      }, 1000);
     }
 
     function changePage(delta) {
@@ -466,7 +550,6 @@
       renderTable();
     }
 
-    // ================= SERVER-SIDE ADMIN AUTH & CLOUD UPLOAD =================
     function openAdminModal() {
       if (adminCreds) {
         document.getElementById("adminPanelBar").classList.toggle("hidden");
@@ -494,6 +577,7 @@
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
+          redirect: "follow",
           body: JSON.stringify({ action: "login", username, password })
         });
         const data = await res.json();
@@ -524,7 +608,6 @@
       document.getElementById("adminToggleBtn").classList.replace("bg-amber-600", "bg-cyan-600");
     }
 
-    // Excel/CSV फ़ाइल को पढ़कर सीधे Google Sheet में अपलोड करें
     function handleCloudFileUpload(event) {
       const file = event.target.files[0];
       if (!file || !adminCreds) return;
@@ -560,6 +643,7 @@
 
           const res = await fetch(SCRIPT_URL, {
             method: "POST",
+            redirect: "follow",
             body: JSON.stringify({
               action: "upload",
               username: adminCreds.username,
@@ -584,17 +668,6 @@
         }
       };
       reader.readAsArrayBuffer(file);
-    }
-
-    function exportFilteredExcel() {
-      if (!filteredData.length) {
-        alert("एक्सपोर्ट करने के लिए कोई डेटा उपलब्ध नहीं है।");
-        return;
-      }
-      const ws = XLSX.utils.json_to_sheet(filteredData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Filtered_Data");
-      XLSX.writeFile(wb, "Filtered_Training_Analysis.xlsx");
     }
   </script>
 </body>
