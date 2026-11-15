@@ -22,26 +22,14 @@
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
 
-    /* Print styling to ensure clean A4 white background PDF */
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printableArea, #printableArea * {
-        visibility: visible;
-      }
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
       #printableArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        padding: 10px;
+        position: absolute; left: 0; top: 0; width: 100%;
+        background-color: #ffffff !important; color: #000000 !important; padding: 10px;
       }
-      .no-print {
-        display: none !important;
-      }
+      .no-print { display: none !important; }
     }
   </style>
 </head>
@@ -85,7 +73,7 @@
           <h2 class="text-base font-bold text-white">मास्टर डेटा अपडेट पैनल</h2>
         </div>
         <p class="text-xs text-slate-300 mt-1">
-          यहाँ से अपलोड की गई <code class="text-cyan-300">.xlsx / .xls / .csv</code> फ़ाइल सीधे सर्वर पर सेव होगी और सभी Users को तुरंत दिखेगी।
+          यहाँ से Excel/CSV अपलोड करें <span class="text-cyan-300 font-semibold">(या नीचे टेबल में सीधे Posting Unit एडिट करके ✔️ दबाएँ)</span>।
         </p>
       </div>
 
@@ -174,7 +162,7 @@
       </div>
 
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS 'AA' Grade</p>
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS 'AA' Grade (उत्कृष्ट)</p>
         <div class="flex items-baseline justify-between mt-2">
           <h4 id="kpiCctnsAA" class="text-3xl font-bold text-amber-400">0</h4>
           <span id="kpiCctnsAAPct" class="text-xs text-amber-300 font-medium">0%</span>
@@ -202,13 +190,13 @@
       </div>
     </div>
 
-    <!-- Data Table (Printable Area for A4 PDF Save) -->
+    <!-- Data Table -->
     <div id="printableArea" class="glass-card rounded-xl overflow-hidden">
       <div class="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <h3 class="text-sm font-semibold text-cyan-300">📋 Personnel Detailed Records</h3>
           <button onclick="downloadFilteredPDF()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow transition flex items-center gap-1.5 no-print">
-            📄 Download PDF
+            📄 Download PDF (A4)
           </button>
         </div>
         <div class="flex items-center gap-3 text-xs text-slate-400">
@@ -249,7 +237,7 @@
         <h3 class="brand-font text-base font-bold text-cyan-400">🔐 CLOUD ADMIN LOGIN</h3>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-4">मास्टर डेटा अपडेट करने के लिए Admin क्रेडेंशियल्स दर्ज करें।</p>
+      <p class="text-xs text-slate-400 mb-4">मास्टर डेटा अपडेट या इनलाइन एडिटिंग करने के लिए Admin क्रेडेंशियल्स दर्ज करें।</p>
       <form onsubmit="verifyAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-300 mb-1">Username</label>
@@ -271,7 +259,8 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwh8jf9Jiq27TiLFl3xbSDfiwVmDOIv8JUSOiGivcFKP2KXF49cmDAqWu-sPZRYrXsGOQ/exec";
+    // यहाँ अपना डिप्लॉय किया गया Google Apps Script Web App URL डालें
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQ8DhABhYVf9Rzy-JVMlXygvoerDXgjlrUomhzuOABiegVEVe9qQmljDUP3LuXw20t0Q/exec";
 
     let masterData = [];
     let filteredData = [];
@@ -474,6 +463,8 @@
         return;
       }
 
+      const isEditingAllowed = adminCreds !== null;
+
       tbody.innerHTML = pageRows.map(r => {
         const cctnsCertVal = String(r["CCTNS Certified"] || "No").trim();
         const cctnsCertBadge = cctnsCertVal === "Yes"
@@ -498,13 +489,27 @@
         const cctnsGradeBadge = getGradeBadge(r["CCTNS Best Grade"]);
         const nlGradeBadge = getGradeBadge(r["New Laws Best Grade"]);
 
+        let postingUnitCell = `<span class="text-slate-300">${r["Posting Unit"] || "N/A"}</span>`;
+        if (isEditingAllowed) {
+          postingUnitCell = `
+            <div class="flex items-center gap-1.5">
+              <input type="text" id="unit-input-${r["PNO"]}" value="${r["Posting Unit"] || ""}" 
+                class="w-32 px-2 py-1 bg-slate-900 border border-cyan-500/50 rounded text-white text-xs focus:outline-none focus:border-cyan-400" />
+              <button onclick="saveSingleUnit('${r["PNO"]}')" title="Google Sheet में सेव करें" 
+                class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs transition shadow font-bold">
+                ✔️
+              </button>
+            </div>
+          `;
+        }
+
         return `
           <tr class="hover:bg-slate-800/50 transition">
             <td class="py-2.5 px-4 font-mono text-cyan-300">${r["PNO"]}</td>
             <td class="py-2.5 px-4 font-medium text-white">${r["Name"]}</td>
             <td class="py-2.5 px-4 text-slate-300">${r["Rank"]}</td>
             <td class="py-2.5 px-4 text-slate-400">${r["Posting District"]}</td>
-            <td class="py-2.5 px-4 text-slate-400">${r["Posting Unit"] || "N/A"}</td>
+            <td class="py-2.5 px-4">${postingUnitCell}</td>
             <td class="py-2.5 px-4 text-center">${cctnsCertBadge}</td>
             <td class="py-2.5 px-4 text-center">${cctnsGradeBadge}</td>
             <td class="py-2.5 px-4 text-center">${nlCertBadge}</td>
@@ -514,14 +519,54 @@
       }).join("");
     }
 
-    // Function to trigger native print dialog for clean A4 PDF saving with white background
+    // Function to save single updated Posting Unit directly to Google Sheet
+    async function saveSingleUnit(pno) {
+      const inputEl = document.getElementById(`unit-input-${pno}`);
+      if (!inputEl || !adminCreds) return;
+
+      const newUnitValue = inputEl.value.trim();
+      inputEl.disabled = true;
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          redirect: "follow",
+          body: JSON.stringify({
+            action: "updateSingleUnit",
+            username: adminCreds.username,
+            password: adminCreds.password,
+            pno: String(pno),
+            newUnit: newUnitValue
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === "success") {
+          alert(`✅ PNO ${pno} की Posting Unit सफलतापूर्वक क्लाउड पर अपडेट हो गई!`);
+          
+          const found = masterData.find(item => String(item["PNO"]) === String(pno));
+          if (found) {
+            found["Posting Unit"] = newUnitValue;
+          }
+          populateDropdowns();
+          applyFilters();
+        } else {
+          alert(`❌ त्रुटि: ${result.message}`);
+          inputEl.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ सर्वर से संपर्क नहीं हो सका।");
+        inputEl.disabled = false;
+      }
+    }
+
     function downloadFilteredPDF() {
       if (!filteredData.length) {
         alert("PDF में डाउनलोड करने के लिए कोई डेटा उपलब्ध नहीं है।");
         return;
       }
 
-      // Temporarily render all filtered rows in the table so all records are printed cleanly
       const tbody = document.getElementById("dataTableBody");
       tbody.innerHTML = filteredData.map(r => `
         <tr style="border-bottom: 1px solid #cbd5e1; color: #000000 !important; background-color: #ffffff !important;">
@@ -539,7 +584,6 @@
 
       window.print();
 
-      // Restore normal paginated view after print dialog closes
       setTimeout(() => {
         renderTable();
       }, 1000);
@@ -588,6 +632,7 @@
           document.getElementById("adminPanelBar").classList.remove("hidden");
           document.getElementById("adminToggleBtn").textContent = "⚙️ Admin Controls";
           document.getElementById("adminToggleBtn").classList.replace("bg-cyan-600", "bg-amber-600");
+          renderTable();
         } else {
           errEl.textContent = `❌ ${data.message || "गलत Username या Password!"}`;
           errEl.classList.remove("hidden");
@@ -606,6 +651,7 @@
       document.getElementById("adminPanelBar").classList.add("hidden");
       document.getElementById("adminToggleBtn").textContent = "🔐 Admin Panel";
       document.getElementById("adminToggleBtn").classList.replace("bg-amber-600", "bg-cyan-600");
+      renderTable();
     }
 
     function handleCloudFileUpload(event) {
