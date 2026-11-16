@@ -73,13 +73,12 @@
           <h2 class="text-base font-bold text-white">मास्टर डेटा अपडेट पैनल</h2>
         </div>
         <p class="text-xs text-slate-300 mt-1">
-      <span class="text-cyan-300 font-semibold">नीचे टेबल में सीधे Posting Unit एडिट करके ✔️ दबाएँ</span>
+          <span class="text-cyan-300 font-semibold">नीचे टेबल में सीधे Posting Unit एडिट करके ✔️ दबाएँ</span>
         </p>
       </div>
-        <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold transition">
-          🚪 Logout
-        </button>
-      </div>
+      <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-semibold transition">
+        🚪 Logout
+      </button>
     </div>
   </section>
 
@@ -137,10 +136,10 @@
       </div>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+    <!-- KPI Cards (CCTNS & NCL WITHOUT AA GRADE added in Red) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 no-print">
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">Filtered Personnel (कुल कार्मिक)</p>
+        <p class="text-xs text-slate-400 uppercase font-semibold">Total Personnel</p>
         <div class="flex items-baseline justify-between mt-2">
           <h4 id="kpiTotal" class="text-3xl font-bold text-white">0</h4>
           <span id="kpiTotalPct" class="text-xs text-cyan-400 font-medium">100%</span>
@@ -148,26 +147,34 @@
       </div>
 
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS + NCL With AA GRADE</p>
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS WITH 'AA' GRADE</p>
         <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiBothAA" class="text-3xl font-bold text-emerald-400">0</h4>
-          <span id="kpiBothAAPct" class="text-xs text-emerald-300 font-medium">0%</span>
+          <h4 id="kpiCctnsAA" class="text-3xl font-bold text-emerald-400">0</h4>
+          <span id="kpiCctnsAAPct" class="text-xs text-emerald-300 font-medium">0%</span>
         </div>
       </div>
 
-      <div class="glass-card rounded-xl p-5 border-l-4 border-l-amber-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS 'AA' Grade (उत्कृष्ट)</p>
+ <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
+        <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS WITHOUT 'AA' GRADE</p>
         <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiCctnsAA" class="text-3xl font-bold text-amber-400">0</h4>
-          <span id="kpiCctnsAAPct" class="text-xs text-amber-300 font-medium">0%</span>
+          <h4 id="kpiCctnsWithoutAA" class="text-3xl font-bold text-rose-400">0</h4>
+          <span id="kpiCctnsWithoutAAPct" class="text-xs text-rose-300 font-medium">0%</span>
         </div>
       </div>
 
-      <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
-        <p class="text-xs text-slate-400 uppercase font-semibold">New Laws 'AA' Grade</p>
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-300">
+        <p class="text-xs text-slate-400 uppercase font-semibold">NCL WITH 'AA' GRADE</p>
         <div class="flex items-baseline justify-between mt-2">
-          <h4 id="kpiNlAA" class="text-3xl font-bold text-cyan-400">0</h4>
-          <span id="kpiNlAAPct" class="text-xs text-cyan-300 font-medium">0%</span>
+          <h4 id="kpiNlAA" class="text-3xl font-bold text-emerald-300">0</h4>
+          <span id="kpiNlAAPct" class="text-xs text-emerald-300 font-medium">0%</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
+        <p class="text-xs text-slate-400 uppercase font-semibold">NCL WITHOUT 'AA' GRADE</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <h4 id="kpiNlWithoutAA" class="text-3xl font-bold text-rose-400">0</h4>
+          <span id="kpiNlWithoutAAPct" class="text-xs text-rose-300 font-medium">0%</span>
         </div>
       </div>
     </div>
@@ -207,11 +214,15 @@
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-700 uppercase">
+              <th class="py-3 px-4">SR.NO.</th>
               <th class="py-3 px-4">PNO</th>
               <th class="py-3 px-4">Name</th>
               <th class="py-3 px-4">Rank</th>
               <th class="py-3 px-4">Posting District</th>
-              <th class="py-3 px-4">Posting Unit</th>
+              <!-- Interactive Sort Button for Posting Unit -->
+              <th class="py-3 px-4 cursor-pointer hover:text-cyan-400 transition select-none" onclick="toggleSortPostingUnit()">
+                Posting Unit <span id="sortIndicator" class="text-cyan-400">↕️</span>
+              </th>
               <th class="py-3 px-4 text-center">CCTNS Cert.</th>
               <th class="py-3 px-4 text-center">CCTNS Grade</th>
               <th class="py-3 px-4 text-center">New Laws Cert.</th>
@@ -231,7 +242,7 @@
         <h3 class="brand-font text-base font-bold text-cyan-400">🔐 CLOUD ADMIN LOGIN</h3>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-4">मास्टर डेटा अपडेट या इनलाइन एडिटिंग करने के लिए Admin क्रेडेंशियल्स दर्ज करें।</p>
+      <p class="text-xs text-slate-400 mb-4">डेटा अपडेट करने के लिए Admin क्रेडेंशियल्स दर्ज करें।</p>
       <form onsubmit="verifyAdminLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs text-slate-300 mb-1">Username</label>
@@ -253,7 +264,6 @@
   </div>
 
   <script>
-    // यहाँ अपना डिप्लॉय किया गया Google Apps Script Web App URL डालें
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx21CyVeuwP4kNV0Wh0lu9IEUSIO2TYa0lbok_Pk0LKuWcf1E4lNL7spVOxxpD4ZRUHow/exec";
 
     let masterData = [];
@@ -261,6 +271,7 @@
     let currentPage = 1;
     const rowsPerPage = 15;
     let adminCreds = null;
+    let isUnitAscending = true; // Posting Unit sort direction
 
     let cctnsGradeChartInst = null;
     let nlGradeChartInst = null;
@@ -367,6 +378,27 @@
       applyFilters();
     }
 
+    // Posting Unit Sort Functionality
+    function toggleSortPostingUnit() {
+      filteredData.sort((a, b) => {
+        let unitA = String(a["Posting Unit"] || "").trim().toLowerCase();
+        let unitB = String(b["Posting Unit"] || "").trim().toLowerCase();
+
+        if (unitA < unitB) return isUnitAscending ? -1 : 1;
+        if (unitA > unitB) return isUnitAscending ? 1 : -1;
+        return 0;
+      });
+
+      const indicator = document.getElementById("sortIndicator");
+      if (indicator) {
+        indicator.textContent = isUnitAscending ? "▲ (A-Z)" : "▼ (Z-A)";
+      }
+
+      isUnitAscending = !isUnitAscending;
+      currentPage = 1;
+      renderTable();
+    }
+
     function updateKPIs() {
       const total = filteredData.length;
       const masterTotal = masterData.length || 1;
@@ -374,16 +406,17 @@
       const cctnsAA = filteredData.filter(r => String(r["CCTNS Best Grade"]).trim().toUpperCase() === "AA").length;
       const nlAA = filteredData.filter(r => String(r["New Laws Best Grade"]).trim().toUpperCase() === "AA").length;
       
-      const bothAA = filteredData.filter(r => 
-        String(r["CCTNS Best Grade"]).trim().toUpperCase() === "AA" && 
-        String(r["New Laws Best Grade"]).trim().toUpperCase() === "AA"
-      ).length;
+      const cctnsWithoutAA = filteredData.filter(r => String(r["CCTNS Best Grade"]).trim().toUpperCase() !== "AA").length;
+      const nclWithoutAA = filteredData.filter(r => String(r["New Laws Best Grade"]).trim().toUpperCase() !== "AA").length;
 
       document.getElementById("kpiTotal").textContent = total.toLocaleString();
       document.getElementById("kpiTotalPct").textContent = `${((total / masterTotal) * 100).toFixed(1)}% of total`;
       
-      document.getElementById("kpiBothAA").textContent = bothAA.toLocaleString();
-      document.getElementById("kpiBothAAPct").textContent = total ? `${((bothAA / total) * 100).toFixed(1)}%` : "0%";
+      document.getElementById("kpiCctnsWithoutAA").textContent = cctnsWithoutAA.toLocaleString();
+      document.getElementById("kpiCctnsWithoutAAPct").textContent = total ? `${((cctnsWithoutAA / total) * 100).toFixed(1)}%` : "0%";
+      
+      document.getElementById("kpiNlWithoutAA").textContent = nclWithoutAA.toLocaleString();
+      document.getElementById("kpiNlWithoutAAPct").textContent = total ? `${((nclWithoutAA / total) * 100).toFixed(1)}%` : "0%";
       
       document.getElementById("kpiCctnsAA").textContent = cctnsAA.toLocaleString();
       document.getElementById("kpiCctnsAAPct").textContent = total ? `${((cctnsAA / total) * 100).toFixed(1)}%` : "0%";
@@ -395,7 +428,9 @@
     function updateCharts() {
       const grades = ["AA", "A", "B", "C", "-"];
       const gradeLabels = ["Grade AA", "Grade A", "Grade B", "Grade C", "No Grade / Pending (-)"];
-      const gradeColors = ["#06b6d4", "#3b82f6", "#f59e0b", "#ef4444", "#64748b"];
+      
+      // रंग निर्धारित किए गए: AA (हरा), A (नीला), B (पीला), C (नारंगी), No Grade/Pending (लाल)
+      const gradeColors = ["#10b981", "#3b82f6", "#eab308", "#f97316", "#ef4444"];
 
       function getGradeCount(field, targetGrade) {
         return filteredData.filter(r => {
@@ -453,13 +488,15 @@
       document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
 
       if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">कोई डेटा उपलब्ध नहीं है। Admin Panel से Excel फ़ाइल अपलोड करें या फ़िल्टर बदलें।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">कोई डेटा उपलब्ध नहीं है। Admin Panel से Excel फ़ाइल अपलोड करें या फ़िल्टर बदलें।</td></tr>`;
         return;
       }
 
       const isEditingAllowed = adminCreds !== null;
 
-      tbody.innerHTML = pageRows.map(r => {
+      tbody.innerHTML = pageRows.map((r, index) => {
+        const srNo = start + index + 1; // Calculating Serial Number
+
         const cctnsCertVal = String(r["CCTNS Certified"] || "No").trim();
         const cctnsCertBadge = cctnsCertVal === "Yes"
           ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
@@ -470,13 +507,20 @@
           ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
           : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold">${nlCertVal}</span>`;
 
+        // टेबल बैडजेस के लिए रंग कॉन्फ़िगरेशन (AA: हरा, A: नीला, B: पीला, C: नारंगी, Pending/-: लाल)
         function getGradeBadge(gradeVal) {
           const g = String(gradeVal || "-").trim().toUpperCase();
-          let styleClass = "text-slate-300 bg-slate-800 border-slate-700";
-          if (g === "AA") styleClass = "text-cyan-300 bg-cyan-500/15 border-cyan-500/30";
-          else if (g === "A") styleClass = "text-blue-300 bg-blue-500/15 border-blue-500/30";
-          else if (g === "B") styleClass = "text-amber-300 bg-amber-500/15 border-amber-500/30";
-          else if (g === "C") styleClass = "text-rose-300 bg-rose-500/15 border-rose-500/30";
+          let styleClass = "text-red-300 bg-red-500/15 border-red-500/30"; // Default No Grade / Pending (-) -> लाल
+          
+          if (g === "AA") {
+            styleClass = "text-emerald-300 bg-emerald-500/15 border-emerald-500/30"; // हरा
+          } else if (g === "A") {
+            styleClass = "text-blue-300 bg-blue-500/15 border-blue-500/30"; // नीला
+          } else if (g === "B") {
+            styleClass = "text-yellow-300 bg-yellow-500/15 border-yellow-500/30"; // पीला
+          } else if (g === "C") {
+            styleClass = "text-orange-300 bg-orange-500/15 border-orange-500/30"; // नारंगी
+          }
           return `<span class="px-2 py-0.5 rounded border font-bold ${styleClass}">${g}</span>`;
         }
 
@@ -499,6 +543,7 @@
 
         return `
           <tr class="hover:bg-slate-800/50 transition">
+            <td class="py-2.5 px-4 font-mono text-cyan-400 font-bold">${srNo}</td>
             <td class="py-2.5 px-4 font-mono text-cyan-300">${r["PNO"]}</td>
             <td class="py-2.5 px-4 font-medium text-white">${r["Name"]}</td>
             <td class="py-2.5 px-4 text-slate-300">${r["Rank"]}</td>
@@ -513,7 +558,6 @@
       }).join("");
     }
 
-    // Function to save single updated Posting Unit directly to Google Sheet
     async function saveSingleUnit(pno) {
       const inputEl = document.getElementById(`unit-input-${pno}`);
       if (!inputEl || !adminCreds) return;
@@ -562,8 +606,9 @@
       }
 
       const tbody = document.getElementById("dataTableBody");
-      tbody.innerHTML = filteredData.map(r => `
+      tbody.innerHTML = filteredData.map((r, index) => `
         <tr style="border-bottom: 1px solid #cbd5e1; color: #000000 !important; background-color: #ffffff !important;">
+          <td style="padding: 6px 8px; font-weight: bold;">${index + 1}</td>
           <td style="padding: 6px 8px; font-family: monospace;">${r["PNO"]}</td>
           <td style="padding: 6px 8px; font-weight: 500;">${r["Name"]}</td>
           <td style="padding: 6px 8px;">${r["Rank"]}</td>
@@ -646,68 +691,6 @@
       document.getElementById("adminToggleBtn").textContent = "🔐 Admin Panel";
       document.getElementById("adminToggleBtn").classList.replace("bg-amber-600", "bg-cyan-600");
       renderTable();
-    }
-
-    function handleCloudFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file || !adminCreds) return;
-
-      const btnText = document.getElementById("uploadBtnText");
-      btnText.textContent = "⏳ Reading & Uploading to Google Sheet...";
-
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
-          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "N/A" });
-
-          if (!rawJson.length) {
-            alert("⚠️ अपलोड की गई फ़ाइल खाली है!");
-            btnText.textContent = "☁️ Upload & Sync Excel / CSV to Cloud";
-            return;
-          }
-
-          const cleanedRecords = rawJson.map(row => ({
-            "PNO": String(row["PNO"] || "").trim(),
-            "Name": String(row["Name"] || "").trim(),
-            "Rank": String(row["Rank"] || "UNKNOWN").trim(),
-            "Posting District": String(row["Posting District"] || "N/A").trim(),
-            "Posting Unit": String(row["Posting Unit"] || "N/A").trim(),
-            "CCTNS Assigned": String(row["CCTNS Assigned"] || "Yes").trim(),
-            "CCTNS Certified": String(row["CCTNS Certified"] || "No").trim(),
-            "CCTNS Best Grade": String(row["CCTNS Best Grade"] || "-").replace("'-", "-").trim(),
-            "New Laws Certified": String(row["New Laws Certified"] || "Yes").trim(),
-            "New Laws Best Grade": String(row["New Laws Best Grade"] || "-").trim()
-          }));
-
-          const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            redirect: "follow",
-            body: JSON.stringify({
-              action: "upload",
-              username: adminCreds.username,
-              password: adminCreds.password,
-              records: cleanedRecords
-            })
-          });
-
-          const result = await res.json();
-          if (result.status === "success") {
-            alert(`✅ ${result.message}`);
-            await fetchLiveCloudData();
-          } else {
-            alert(`❌ त्रुटि: ${result.message}`);
-          }
-        } catch (err) {
-          console.error(err);
-          alert("❌ क्लाउड अपलोड में समस्या आई। कृपया पुनः प्रयास करें।");
-        } finally {
-          btnText.textContent = "☁️ Upload & Sync Excel / CSV to Cloud";
-          event.target.value = "";
-        }
-      };
-      reader.readAsArrayBuffer(file);
     }
   </script>
 </body>
