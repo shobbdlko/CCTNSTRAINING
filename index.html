@@ -293,7 +293,7 @@
         if (data.status === "success") {
           masterData = data.records || [];
           
-          let formattedTime = "Now";
+     let formattedTime = data.lastUpdated || "Now";
           if (data.lastUpdated) {
             const dateObj = new Date(data.lastUpdated);
             if (!isNaN(dateObj.getTime())) {
