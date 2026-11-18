@@ -70,7 +70,7 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40 rounded">Admin Cloud Mode</span>
-          <h2 class="text-base font-bold text-white">मास्टर डेटा अपडेट पैनल</h2>
+          <h2 class="text-base font-bold text-white">डेटा अपडेट पैनल</h2>
         </div>
         <p class="text-xs text-slate-300 mt-1">
           <span class="text-cyan-300 font-semibold">नीचे टेबल में सीधे Posting Unit एडिट करके ✔️ दबाएँ</span>
@@ -93,50 +93,52 @@
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Search PNO / Name</label>
-          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="PNO या नाम लिखें..."
+          <label class="block text-xs text-slate-400 mb-1">SEARCH PNO / NAME</label>
+          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="ENTER PNO OR NAME..."
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Rank (पद)</label>
+          <label class="block text-xs text-slate-400 mb-1">RANK</label>
           <select id="rankFilter" onchange="applyFilters()"
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <option value="ALL">All Ranks (सभी पद)</option>
+            <option value="ALL">ALL RANKS</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">CCTNS Best Grade</label>
+          <label class="block text-xs text-slate-400 mb-1">CCTNS GRADE</label>
           <select id="cctnsGradeFilter" onchange="applyFilters()"
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <option value="ALL">All Grades (AA, A, B, C)</option>
-            <option value="AA">Grade AA</option>
-            <option value="A">Grade A</option>
-            <option value="B">Grade B</option>
-            <option value="C">Grade C</option>
+            <option value="ALL">ALL GRADES</option>
+            <option value="AA">GRADE AA</option>
+            <option value="A">GRADE A</option>
+            <option value="B">GRADE B</option>
+            <option value="C">GRADE C</option>
+            <option value="PENDING">PENDING</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">New Laws Best Grade</label>
+          <label class="block text-xs text-slate-400 mb-1">NCL GRADE</label>
           <select id="nlGradeFilter" onchange="applyFilters()"
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <option value="ALL">All Grades (AA, A, B, C)</option>
-            <option value="AA">Grade AA</option>
-            <option value="A">Grade A</option>
-            <option value="B">Grade B</option>
-            <option value="C">Grade C</option>
+            <option value="ALL">ALL GRADES</option>
+            <option value="AA">GRADE AA</option>
+            <option value="A">GRADE A</option>
+            <option value="B">GRADE B</option>
+            <option value="C">GRADE C</option>
+            <option value="PENDING">PENDING</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Posting Unit</label>
+          <label class="block text-xs text-slate-400 mb-1">POSTING UNIT</label>
           <select id="unitFilter" onchange="applyFilters()"
             class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-            <option value="ALL">All Units</option>
+            <option value="ALL">ALL UNITS</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- KPI Cards (CCTNS & NCL WITHOUT AA GRADE added in Red) -->
+    <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 no-print">
       <div class="glass-card rounded-xl p-5 border-l-4 border-l-cyan-400">
         <p class="text-xs text-slate-400 uppercase font-semibold">Total Personnel</p>
@@ -154,7 +156,7 @@
         </div>
       </div>
 
- <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
+      <div class="glass-card rounded-xl p-5 border-l-4 border-l-rose-500">
         <p class="text-xs text-slate-400 uppercase font-semibold">CCTNS WITHOUT 'AA' GRADE</p>
         <div class="flex items-baseline justify-between mt-2">
           <h4 id="kpiCctnsWithoutAA" class="text-3xl font-bold text-rose-400">0</h4>
@@ -182,11 +184,11 @@
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 no-print">
       <div class="glass-card rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 CCTNS Best Grade Distribution (Inc. No Grade)</h3>
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 CCTNS Best Grade Distribution (Inc. Pending)</h3>
         <div class="h-72 flex items-center justify-center"><canvas id="cctnsGradeChart"></canvas></div>
       </div>
       <div class="glass-card rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution (Inc. No Grade)</h3>
+        <h3 class="text-sm font-semibold text-slate-200 mb-4">🎯 New Laws Best Grade Distribution (Inc. Pending)</h3>
         <div class="h-72 flex items-center justify-center"><canvas id="nlGradeChart"></canvas></div>
       </div>
     </div>
@@ -219,7 +221,6 @@
               <th class="py-3 px-4">Name</th>
               <th class="py-3 px-4">Rank</th>
               <th class="py-3 px-4">Posting District</th>
-              <!-- Interactive Sort Button for Posting Unit -->
               <th class="py-3 px-4 cursor-pointer hover:text-cyan-400 transition select-none" onclick="toggleSortPostingUnit()">
                 Posting Unit <span id="sortIndicator" class="text-cyan-400">↕️</span>
               </th>
@@ -271,7 +272,7 @@
     let currentPage = 1;
     const rowsPerPage = 15;
     let adminCreds = null;
-    let isUnitAscending = true; // Posting Unit sort direction
+    let isUnitAscending = true;
 
     let cctnsGradeChartInst = null;
     let nlGradeChartInst = null;
@@ -286,9 +287,6 @@
       badge.textContent = "⏳ Syncing from Cloud...";
 
       try {
-        if (SCRIPT_URL.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
-          throw new Error("कृपया SCRIPT_URL में अपना Apps Script URL डालें।");
-        }
         const res = await fetch(SCRIPT_URL, { redirect: "follow" });
         const data = await res.json();
 
@@ -332,7 +330,7 @@
       const units = [...new Set(masterData.map(r => r["Posting Unit"]).filter(Boolean))].sort();
 
       document.getElementById("rankFilter").innerHTML =
-        `<option value="ALL">All Ranks (सभी पद)</option>` + ranks.map(r => `<option value="${r}">${r}</option>`).join("");
+        `<option value="ALL">ALL RANKS</option>` + ranks.map(r => `<option value="${r}">${r}</option>`).join("");
 
       document.getElementById("unitFilter").innerHTML =
         `<option value="ALL">All Units</option>` + units.map(u => `<option value="${u}">${u}</option>`).join("");
@@ -352,12 +350,24 @@
         const matchRank = rank === "ALL" || row["Rank"] === rank;
         
         let rowCctnsGrade = String(row["CCTNS Best Grade"] || "-").trim().toUpperCase();
-        if (rowCctnsGrade === "" || rowCctnsGrade === "N/A" || rowCctnsGrade === "NULL") rowCctnsGrade = "-";
-        const matchCctnsGrade = cctnsGrade === "ALL" || rowCctnsGrade === cctnsGrade;
+        if (rowCctnsGrade === "" || rowCctnsGrade === "N/A" || rowCctnsGrade === "NULL" || rowCctnsGrade === "-") {
+          rowCctnsGrade = "PENDING";
+        }
+        
+        let matchCctnsGrade = true;
+        if (cctnsGrade !== "ALL") {
+          matchCctnsGrade = rowCctnsGrade === cctnsGrade;
+        }
 
         let rowNlGrade = String(row["New Laws Best Grade"] || "-").trim().toUpperCase();
-        if (rowNlGrade === "" || rowNlGrade === "N/A" || rowNlGrade === "NULL") rowNlGrade = "-";
-        const matchNl = nlGrade === "ALL" || rowNlGrade === nlGrade;
+        if (rowNlGrade === "" || rowNlGrade === "N/A" || rowNlGrade === "NULL" || rowNlGrade === "-") {
+          rowNlGrade = "PENDING";
+        }
+
+        let matchNl = true;
+        if (nlGrade !== "ALL") {
+          matchNl = rowNlGrade === nlGrade;
+        }
 
         const matchUnit = unit === "ALL" || row["Posting Unit"] === unit;
         return matchSearch && matchRank && matchCctnsGrade && matchNl && matchUnit;
@@ -378,7 +388,6 @@
       applyFilters();
     }
 
-    // Posting Unit Sort Functionality
     function toggleSortPostingUnit() {
       filteredData.sort((a, b) => {
         let unitA = String(a["Posting Unit"] || "").trim().toLowerCase();
@@ -426,18 +435,15 @@
     }
 
     function updateCharts() {
-      const grades = ["AA", "A", "B", "C", "-"];
-      const gradeLabels = ["Grade AA", "Grade A", "Grade B", "Grade C", "No Grade / Pending (-)"];
-      
-      // रंग निर्धारित किए गए: AA (हरा), A (नीला), B (पीला), C (नारंगी), No Grade/Pending (लाल)
+      const grades = ["AA", "A", "B", "C", "PENDING"];
+      const gradeLabels = ["Grade AA", "Grade A", "Grade B", "Grade C", "Pending (-)"];
       const gradeColors = ["#10b981", "#3b82f6", "#eab308", "#f97316", "#ef4444"];
 
       function getGradeCount(field, targetGrade) {
         return filteredData.filter(r => {
           let val = String(r[field] || "-").trim().toUpperCase();
-          if (val === "" || val === "N/A" || val === "NULL" || val === "NONE") val = "-";
-          if (targetGrade === "-") {
-            return val === "-" || !["AA", "A", "B", "C"].includes(val);
+          if (val === "" || val === "N/A" || val === "NULL" || val === "NONE" || val === "-") {
+            val = "PENDING";
           }
           return val === targetGrade;
         }).length;
@@ -495,7 +501,7 @@
       const isEditingAllowed = adminCreds !== null;
 
       tbody.innerHTML = pageRows.map((r, index) => {
-        const srNo = start + index + 1; // Calculating Serial Number
+        const srNo = start + index + 1;
 
         const cctnsCertVal = String(r["CCTNS Certified"] || "No").trim();
         const cctnsCertBadge = cctnsCertVal === "Yes"
@@ -507,19 +513,20 @@
           ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Yes</span>`
           : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold">${nlCertVal}</span>`;
 
-        // टेबल बैडजेस के लिए रंग कॉन्फ़िगरेशन (AA: हरा, A: नीला, B: पीला, C: नारंगी, Pending/-: लाल)
         function getGradeBadge(gradeVal) {
-          const g = String(gradeVal || "-").trim().toUpperCase();
-          let styleClass = "text-red-300 bg-red-500/15 border-red-500/30"; // Default No Grade / Pending (-) -> लाल
+          let g = String(gradeVal || "-").trim().toUpperCase();
+          if (g === "" || g === "N/A" || g === "NULL" || g === "-") g = "PENDING";
+
+          let styleClass = "text-red-300 bg-red-500/15 border-red-500/30"; // Pending -> लाल
           
           if (g === "AA") {
-            styleClass = "text-emerald-300 bg-emerald-500/15 border-emerald-500/30"; // हरा
+            styleClass = "text-emerald-300 bg-emerald-500/15 border-emerald-500/30";
           } else if (g === "A") {
-            styleClass = "text-blue-300 bg-blue-500/15 border-blue-500/30"; // नीला
+            styleClass = "text-blue-300 bg-blue-500/15 border-blue-500/30";
           } else if (g === "B") {
-            styleClass = "text-yellow-300 bg-yellow-500/15 border-yellow-500/30"; // पीला
+            styleClass = "text-yellow-300 bg-yellow-500/15 border-yellow-500/30";
           } else if (g === "C") {
-            styleClass = "text-orange-300 bg-orange-500/15 border-orange-500/30"; // नारंगी
+            styleClass = "text-orange-300 bg-orange-500/15 border-orange-500/30";
           }
           return `<span class="px-2 py-0.5 rounded border font-bold ${styleClass}">${g}</span>`;
         }
@@ -624,7 +631,7 @@
       window.print();
 
       setTimeout(() => {
-        renderTable();
+        renderTag = renderTable();
       }, 1000);
     }
 
