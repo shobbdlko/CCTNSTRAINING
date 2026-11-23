@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CCTNS Training" />
-  <title>CCTNS Training Analytics Dashboard |  Commissionerate Lucknow</title>
+  <title>CCTNS Training Analytics Dashboard | Commissionerate Lucknow</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -242,33 +242,32 @@
       }
       .no-print { display: none !important; }
     }
-.install-app-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
-  transition: all 0.2s ease;
-}
+    .install-app-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s ease;
+    }
 
-.install-app-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  transform: translateY(-1px);
-}
+    .install-app-btn:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+    }
 
-/* A4 PDF Print karte waqt button ko hide rakhein */
-@media print {
-  .install-app-btn {
-    display: none !important;
-  }
-}
+    @media print {
+      .install-app-btn {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -309,7 +308,6 @@
         return;
       }
 
-      // Bina window.load ka intezar kiye turant timer shuru karein
       setTimeout(() => {
         if (splash) {
           splash.classList.add('hide');
@@ -341,15 +339,14 @@
         <button onclick="fetchLiveCloudData()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-600 text-xs font-semibold transition">
           🔄 Refresh
         </button>
-<button id="pwaInstallBtn" class="install-app-btn" style="display: none;" title="Install Dashboard App">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-    <polyline points="7 10 12 15 17 10"></polyline>
-    <line x1="12" y1="15" x2="12" y2="3"></line>
-  </svg>
-  <span>Install App</span>
-</button>
-       <!-- <button id="adminToggleBtn" onclick="openAdminModal()" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition">🔐 Admin Panel</button>-->
+        <button id="pwaInstallBtn" class="install-app-btn" style="display: none;" title="Install Dashboard App">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Install App</span>
+        </button>
       </div>
     </div>
   </header>
@@ -381,7 +378,7 @@
         <h3 class="text-sm font-semibold text-cyan-300 uppercase tracking-wider">🔍 Data Filters (Normal User Analysis)</h3>
         <button onclick="resetFilters()" class="text-xs text-cyan-400 hover:underline">Reset All Filters</button>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <div>
           <label class="block text-xs text-slate-400 mb-1">SEARCH PNO / NAME</label>
           <input type="text" id="searchInput" oninput="applyFilters()" placeholder="ENTER PNO OR NAME..."
@@ -416,6 +413,13 @@
             <option value="B">GRADE B</option>
             <option value="C">GRADE C</option>
             <option value="PENDING">PENDING</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">ASSIGNED TARGET ZONE</label>
+          <select id="zoneFilter" onchange="onZoneChange()"
+            class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            <option value="ALL">ALL ZONES</option>
           </select>
         </div>
         <div>
@@ -583,7 +587,7 @@
         if (data.status === "success") {
           masterData = data.records || [];
           
-     let formattedTime = data.lastUpdated || "Now";
+          let formattedTime = data.lastUpdated || "Now";
           if (data.lastUpdated) {
             const dateObj = new Date(data.lastUpdated);
             if (!isNaN(dateObj.getTime())) {
@@ -617,13 +621,43 @@
 
     function populateDropdowns() {
       const ranks = [...new Set(masterData.map(r => r["Rank"]).filter(Boolean))].sort();
-      const units = [...new Set(masterData.map(r => r["Posting Unit"]).filter(Boolean))].sort();
+      const zones = [...new Set(masterData.map(r => r["Posting District"]).filter(Boolean))].sort();
 
       document.getElementById("rankFilter").innerHTML =
         `<option value="ALL">ALL RANKS</option>` + ranks.map(r => `<option value="${r}">${r}</option>`).join("");
 
-      document.getElementById("unitFilter").innerHTML =
-        `<option value="ALL">All Units</option>` + units.map(u => `<option value="${u}">${u}</option>`).join("");
+      document.getElementById("zoneFilter").innerHTML =
+        `<option value="ALL">ALL ZONES</option>` + zones.map(z => `<option value="${z}">${z}</option>`).join("");
+
+      updateUnitDropdown();
+    }
+
+    function updateUnitDropdown() {
+      const selectedZone = document.getElementById("zoneFilter").value;
+      const unitSelect = document.getElementById("unitFilter");
+      const currentSelectedUnit = unitSelect.value;
+
+      // चुने गए ज़ोन के आधार पर संबंधित डेटा फ़िल्टर करें
+      const sourceData = selectedZone === "ALL"
+        ? masterData
+        : masterData.filter(r => r["Posting District"] === selectedZone);
+
+      const units = [...new Set(sourceData.map(r => r["Posting Unit"]).filter(Boolean))].sort();
+
+      unitSelect.innerHTML =
+        `<option value="ALL">ALL UNITS</option>` + units.map(u => `<option value="${u}">${u}</option>`).join("");
+
+      // यदि पहले से चुनी गई यूनिट नए ज़ोन में उपलब्ध है तो उसे बनाए रखें, वरना ALL पर सेट करें
+      if (units.includes(currentSelectedUnit)) {
+        unitSelect.value = currentSelectedUnit;
+      } else {
+        unitSelect.value = "ALL";
+      }
+    }
+
+    function onZoneChange() {
+      updateUnitDropdown();
+      applyFilters();
     }
 
     function applyFilters() {
@@ -631,6 +665,7 @@
       const rank = document.getElementById("rankFilter").value;
       const cctnsGrade = document.getElementById("cctnsGradeFilter").value;
       const nlGrade = document.getElementById("nlGradeFilter").value;
+      const zone = document.getElementById("zoneFilter").value;
       const unit = document.getElementById("unitFilter").value;
 
       filteredData = masterData.filter(row => {
@@ -659,8 +694,9 @@
           matchNl = rowNlGrade === nlGrade;
         }
 
+        const matchZone = zone === "ALL" || row["Posting District"] === zone;
         const matchUnit = unit === "ALL" || row["Posting Unit"] === unit;
-        return matchSearch && matchRank && matchCctnsGrade && matchNl && matchUnit;
+        return matchSearch && matchRank && matchCctnsGrade && matchNl && matchZone && matchUnit;
       });
 
       currentPage = 1;
@@ -674,6 +710,8 @@
       document.getElementById("rankFilter").value = "ALL";
       document.getElementById("cctnsGradeFilter").value = "ALL";
       document.getElementById("nlGradeFilter").value = "ALL";
+      document.getElementById("zoneFilter").value = "ALL";
+      updateUnitDropdown();
       document.getElementById("unitFilter").value = "ALL";
       applyFilters();
     }
@@ -807,7 +845,7 @@
           let g = String(gradeVal || "-").trim().toUpperCase();
           if (g === "" || g === "N/A" || g === "NULL" || g === "-") g = "PENDING";
 
-          let styleClass = "text-red-300 bg-red-500/15 border-red-500/30"; // Pending -> लाल
+          let styleClass = "text-red-300 bg-red-500/15 border-red-500/30";
           
           if (g === "AA") {
             styleClass = "text-emerald-300 bg-emerald-500/15 border-emerald-500/30";
@@ -990,7 +1028,7 @@
       renderTable();
     }
   </script>
-<script>
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -999,48 +1037,36 @@
       });
     }
   </script>
-<script>
-  let deferredPrompt;
-  const installBtn = document.getElementById('pwaInstallBtn');
+  <script>
+    let deferredPrompt;
+    const installBtn = document.getElementById('pwaInstallBtn');
 
-  // Jab browser PWA install ke liye ready ho
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Chrome ke default mini-infobar ko rokein
-    e.preventDefault();
-    // Event ko baad mein trigger karne ke liye save karein
-    deferredPrompt = e;
-    // Header wala Install App button dikhayein
-    if (installBtn) {
-      installBtn.style.display = 'inline-flex';
-    }
-  });
-
-  // Button click par install prompt kholein
-  if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      
-      // Native install prompt dikhayein
-      deferredPrompt.prompt();
-      
-      // User ke choice ka wait karein (accepted / dismissed)
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User install choice: ${outcome}`);
-      
-      // Prompt sirf ek baar use ho sakta hai, isliye reset karein
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) {
+        installBtn.style.display = 'inline-flex';
+      }
     });
-  }
 
-  // App install hone ke baad button ko permanently chhupa dein
-  window.addEventListener('appinstalled', () => {
-    console.log('iGOT Dashboard PWA successfully installed!');
-    deferredPrompt = null;
     if (installBtn) {
-      installBtn.style.display = 'none';
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User install choice: ${outcome}`);
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      });
     }
-  });
-</script>
+
+    window.addEventListener('appinstalled', () => {
+      console.log('iGOT Dashboard PWA successfully installed!');
+      deferredPrompt = null;
+      if (installBtn) {
+        installBtn.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
