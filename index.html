@@ -268,6 +268,22 @@
         display: none !important;
       }
     }
+.download-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .download-btn:hover {
+    background-color: #1d4ed8;
+  }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -339,6 +355,9 @@
         <button onclick="fetchLiveCloudData()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-600 text-xs font-semibold transition">
           🔄 Refresh
         </button>
+<div><a href="https://github.com/shobbdlko/CCTNSTRAINING/releases/download/v5.0/RAHUL.EXAM.TOOL.v5.0.zip" class="download-btn">
+  DOWNLOAD RAHUL EXAM TOOL v5.0
+</a></div>
         <button id="pwaInstallBtn" class="install-app-btn" style="display: none;" title="Install Dashboard App">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
