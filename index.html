@@ -268,22 +268,86 @@
         display: none !important;
       }
     }
-.download-btn {
-    display: inline-block;
-    padding: 12px 24px;
-    background-color: #2563eb;
-    color: #ffffff;
-    text-decoration: none;
-    font-family: sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-  }
+/* ================= INTERACTIVE THEME DOWNLOAD BUTTON ================= */
+.rahul-tool-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.45), rgba(15, 23, 42, 0.92));
+  color: #e0f2fe;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  .download-btn:hover {
-    background-color: #1d4ed8;
-  }
+/* चमकने वाली शिमर लाइन (Shimmer Sweep) */
+.rahul-tool-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(56, 189, 248, 0.35),
+    transparent
+  );
+  transition: left 0.55s ease;
+}
+
+.rahul-tool-btn:hover::before {
+  left: 140%;
+}
+
+.rahul-tool-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.75), rgba(15, 23, 42, 0.95));
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+}
+
+.rahul-tool-btn:active {
+  transform: scale(0.97);
+}
+
+.rahul-tool-btn .dl-icon {
+  color: #38bdf8;
+  transition: transform 0.25s ease;
+}
+
+.rahul-tool-btn:hover .dl-icon {
+  transform: translateY(2px);
+  color: #ffffff;
+}
+
+.rahul-tool-btn .version-pill {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.rahul-tool-btn.downloading {
+  border-color: #22c55e;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.35);
+}
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -352,12 +416,19 @@
         <span id="syncStatusBadge" class="text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
           ⏳ Connecting to Cloud...
         </span>
-        <button onclick="fetchLiveCloudData()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-600 text-xs font-semibold transition">
-          🔄 Refresh
-        </button>
-<div><a href="https://github.com/shobbdlko/CCTNSTRAINING/releases/download/v5.0/RAHUL.EXAM.TOOL.v5.0.zip" class="download-btn">
-  DOWNLOAD RAHUL EXAM TOOL v5.0
-</a></div>
+        <a href="https://github.com/shobbdlko/CCTNSTRAINING/releases/download/v5.0/RAHUL.EXAM.TOOL.v5.0.zip"
+   id="rahulToolDownloadBtn"
+   onclick="triggerToolDownloadFeedback(this)"
+   class="rahul-tool-btn"
+   title="Download Rahul Exam Tool Extension (ZIP)">
+  <svg class="dl-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="7 10 12 15 17 10"></polyline>
+    <line x1="12" y1="15" x2="12" y2="3"></line>
+  </svg>
+  <span id="rahulToolBtnText">RAHUL EXAM TOOL</span>
+  <span class="version-pill">v5.0</span>
+</a>
         <button id="pwaInstallBtn" class="install-app-btn" style="display: none;" title="Install Dashboard App">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -578,7 +649,8 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDpzTkWp7zHodzgI8XeiaS7yI8hhcdQ-ueLvrs3HYI7--Dlrvmn3qfs8uItzYwEMxShw/exec";
+ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDpzTkWp7zHodzgI8XeiaS7yI8hhcdQ-ueLvrs3HYI7--Dlrvmn3qfs8uItzYwEMxShw/exec";
+    const AUTO_REFRESH_INTERVAL_MS = 120000; // हर 2 मिनट (120,000 ms) में ऑटो-चेक
 
     let masterData = [];
     let filteredData = [];
@@ -590,51 +662,97 @@
     let cctnsGradeChartInst = null;
     let nlGradeChartInst = null;
 
+    let lastKnownUpdatedRaw = "";
+    let isFetchingCloud = false;
+    let autoRefreshTimer = null;
+
     window.addEventListener("DOMContentLoaded", () => {
-      fetchLiveCloudData();
+      fetchLiveCloudData(false);
+      startAutoRefresh();
     });
 
-    async function fetchLiveCloudData() {
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (!document.hidden && !adminCreds) {
+          fetchLiveCloudData(true);
+        }
+      }, AUTO_REFRESH_INTERVAL_MS);
+    }
+
+    // टैब पर वापस आने पर तुरंत ताज़ा अपडेट चेक करें
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && masterData.length > 0 && !adminCreds) {
+        fetchLiveCloudData(true);
+      }
+    });
+
+    function formatISTDisplayTime(rawTime) {
+      if (!rawTime) return "Now";
+      const dateObj = new Date(rawTime);
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj.toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true
+        });
+      }
+      return rawTime;
+    }
+
+    async function fetchLiveCloudData(isAuto = false) {
+      if (isFetchingCloud) return;
+      isFetchingCloud = true;
+
       const badge = document.getElementById("syncStatusBadge");
-      badge.className = "text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30";
-      badge.textContent = "⏳ Syncing from Cloud...";
+
+      // मैन्युअल क्लिक या पहली बार लोड होने पर ही "Syncing..." बैज दिखाएँ ताकि बैकग्राउंड में स्क्रीन न चमके
+      if (!isAuto || masterData.length === 0) {
+        badge.className = "text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30";
+        badge.textContent = "⏳ Syncing from Cloud...";
+      }
 
       try {
-        const res = await fetch(SCRIPT_URL, { redirect: "follow" });
+        const fetchUrl = isAuto ? `${SCRIPT_URL}?_t=${Date.now()}` : SCRIPT_URL;
+        const res = await fetch(fetchUrl, { redirect: "follow" });
         const data = await res.json();
 
         if (data.status === "success") {
-          masterData = data.records || [];
-          
-          let formattedTime = data.lastUpdated || "Now";
-          if (data.lastUpdated) {
-            const dateObj = new Date(data.lastUpdated);
-            if (!isNaN(dateObj.getTime())) {
-              formattedTime = dateObj.toLocaleString("en-IN", {
-                timeZone: "Asia/Kolkata",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true
-              });
-            } else {
-              formattedTime = data.lastUpdated;
-            }
+          const incomingUpdated = String(data.lastUpdated || "");
+          const formattedTime = formatISTDisplayTime(data.lastUpdated);
+
+          // यदि ऑटो-रीफ़्रेश है और डेटा का lastUpdated नहीं बदला है, तो UI को दोबारा रेंडर न करें
+          if (isAuto && masterData.length > 0 && incomingUpdated === lastKnownUpdatedRaw) {
+            badge.className = "text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+            badge.textContent = `● Last Updated: ${formattedTime}`;
+            return;
           }
+
+          masterData = data.records || [];
+          lastKnownUpdatedRaw = incomingUpdated;
 
           badge.className = "text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
           badge.textContent = `● Last Updated: ${formattedTime}`;
+
           populateDropdowns();
           applyFilters();
         } else {
           throw new Error(data.message || "Failed to load data");
         }
       } catch (err) {
-        badge.className = "text-xs px-3 py-1.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30";
-        badge.textContent = `⚠️ ${err.message}`;
+        if (!isAuto || masterData.length === 0) {
+          badge.className = "text-xs px-3 py-1.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30";
+          badge.textContent = `⚠️ ${err.message}`;
+        } else {
+          console.warn("Background auto-refresh skipped due to network issue:", err);
+        }
+      } finally {
+        isFetchingCloud = false;
       }
     }
 
@@ -1086,6 +1204,19 @@
         installBtn.style.display = 'none';
       }
     });
+function triggerToolDownloadFeedback(btn) {
+  const label = document.getElementById("rahulToolBtnText");
+  if (!label || btn.classList.contains("downloading")) return;
+
+  const originalText = label.textContent;
+  btn.classList.add("downloading");
+  label.textContent = "Downloading ZIP...";
+
+  setTimeout(() => {
+    btn.classList.remove("downloading");
+    label.textContent = originalText;
+  }, 3000);
+}
   </script>
 </body>
 </html>
